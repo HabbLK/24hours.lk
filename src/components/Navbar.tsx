@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, Bot } from "lucide-react";
 import { useState, useEffect } from "react";
 import IconRenderer from "./IconRenderer";
 
@@ -45,15 +45,24 @@ export default function Navbar({ categories }: { categories: any[] }) {
               </Link>
             ))}
             <Link 
-              href="/search" 
-              className="px-4 py-2 bg-brand-red hover:bg-brand-red-dk text-white rounded-lg text-sm font-bold transition-all hover:scale-105"
+              href="/assistant"
+              title="Ask 24hours.lk — book services by chatting with our assistant"
+              className="relative flex items-center justify-center w-10 h-10 rounded-full bg-brand-red hover:bg-brand-red-dk transition-colors"
             >
-              Search
+              <Bot className="w-5 h-5 text-white" />
+              <span className="sr-only">Ask 24hours.lk — book services by chatting with our assistant</span>
             </Link>
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <Link 
+              href="/assistant"
+              title="Ask 24hours.lk"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-red hover:bg-brand-red-dk transition-colors"
+            >
+              <Bot className="w-5 h-5 text-white" />
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -77,7 +86,7 @@ export default function Navbar({ categories }: { categories: any[] }) {
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             >
-              <IconRenderer iconName={category.icon} className="w-5 h-5" style={{ color: category.color }} />
+              {category.icon && <IconRenderer iconName={category.icon} className="w-5 h-5" style={{ color: category.color }} />}
               <span>{category.name}</span>
             </Link>
           ))}

@@ -42,7 +42,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           {/* Category Header */}
           <div className="flex items-start gap-6 mb-12 animate-fade-in-up">
             <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-white to-gray-50 rounded-2xl flex items-center justify-center text-4xl shadow-lg border-2 border-gray-100">
-              <IconRenderer iconName={category.icon} className="w-10 h-10" />
+              {category.icon && <IconRenderer iconName={category.icon} className="w-10 h-10" />}
             </div>
             <div className="flex-1">
               <h1 className="text-4xl md:text-5xl font-heading font-bold text-brand-ink mb-3">{category.name}</h1>
@@ -62,8 +62,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             </div>
           ) : (
             <div className="text-center py-32 bg-white rounded-2xl border border-gray-200 shadow-sm animate-fade-in-up">
-              <div className="text-6xl mb-4 opacity-50">
-                <IconRenderer iconName={category.icon} className="w-16 h-16 mx-auto" />
+              <div className="mb-4 opacity-50 flex justify-center">
+                {category.icon && <IconRenderer iconName={category.icon} className="w-16 h-16" />}
               </div>
               <h2 className="text-2xl font-bold text-gray-700 mb-2">No services yet</h2>
               <p className="text-gray-500 mb-6">We're working on adding services to this category.</p>

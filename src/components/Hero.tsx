@@ -44,6 +44,7 @@ export default function Hero({ headline, subtext }: { headline: string; subtext:
         <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-10 sm:mb-12">
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <input 
+              suppressHydrationWarning
               type="text" 
               placeholder="Search services..." 
               className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-white text-brand-ink text-sm sm:text-base font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red border-2 border-brand-red/20 focus:border-brand-red transition-all"

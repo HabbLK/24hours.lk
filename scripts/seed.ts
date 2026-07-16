@@ -110,11 +110,18 @@ async function seed() {
     // 3. Seed Services
     const servicesData = [
       // Transport
-      { name: "Bus Tickets (SLTB)", slug: "bus-tickets-sltb", icon: "Bus", category: "transport", description: "Official SLTB bus booking platform", externalUrl: "https://sltb.eseat.lk", secondaryUrls: [{ label: "Magiya", url: "https://magiya.lk" }, { label: "BusSeat", url: "https://busseat.lk" }], featured: true, active: true, tags: ["bus", "transport", "sltb", "intercity"] },
-      { name: "PickMe Taxi", slug: "pickme-taxi", icon: "Car", category: "transport", description: "Local ride-hailing app", externalUrl: "https://pickme.lk", featured: true, active: true, tags: ["taxi", "tuk", "ride"] },
-      { name: "Uber Sri Lanka", slug: "uber-sri-lanka", icon: "Car", category: "transport", description: "Global ride-hailing service", externalUrl: "https://uber.com", active: true, tags: ["taxi", "ride"] },
-      { name: "Airport Taxi", slug: "airport-taxi", icon: "Plane", category: "transport", description: "Reliable airport transfers", externalUrl: "https://aerotaxi.lk", active: true, tags: ["airport", "transfer", "taxi"] },
-      
+      { name: "Bus Tickets (SLTB)", slug: "bus-tickets-sltb", icon: "🚌", category: "transport", description: "Official SLTB bus booking platform", externalUrl: "https://sltb.eseat.lk", featured: true, tags: ["bus", "transport", "sltb", "intercity"] },
+      { name: "PickMe Taxi", slug: "pickme-taxi", icon: "🚕", category: "transport", description: "Local ride-hailing app", externalUrl: "https://pickme.lk", featured: true, tags: ["taxi", "tuk", "ride"] },
+      { name: "Uber Sri Lanka", slug: "uber-sri-lanka", icon: "🚗", category: "transport", description: "Global ride-hailing service", externalUrl: "https://uber.com", tags: ["taxi", "ride"] },
+      { name: "Airport Taxi", slug: "airport-taxi", icon: "✈️", category: "transport", description: "Reliable airport transfers", externalUrl: "https://aerotaxi.lk", tags: ["airport", "transfer", "taxi"] },
+      { name: "SriLankan Airlines", slug: "srilankan-airlines", icon: "✈️", category: "transport", description: "National carrier — domestic and international flights", externalUrl: "https://www.srilankan.com", featured: true, tags: ["flight", "airline", "transport"] },
+      { name: "FitsAir", slug: "fitsair", icon: "✈️", category: "transport", description: "Low-cost carrier, domestic and regional routes", externalUrl: "https://www.fitsair.com", tags: ["flight", "airline"] },
+      { name: "Emirates", slug: "emirates", icon: "✈️", category: "transport", description: "International flights via Dubai", externalUrl: "https://www.emirates.com", tags: ["flight", "airline"] },
+      { name: "Qatar Airways", slug: "qatar-airways", icon: "✈️", category: "transport", description: "International flights via Doha", externalUrl: "https://www.qatarairways.com", tags: ["flight", "airline"] },
+      { name: "BusSeat.lk", slug: "busseat-lk", icon: "🚌", category: "transport", description: "Private intercity bus seat booking platform", externalUrl: "https://busseat.lk/", tags: ["bus", "transport", "private", "intercity"] },
+      { name: "Bus.lk", slug: "bus-lk", icon: "🚌", category: "transport", description: "Private intercity bus booking platform", externalUrl: "https://bus.lk/", tags: ["bus", "transport", "private", "intercity"] },
+      { name: "Magiya.lk", slug: "magiya-lk", icon: "🚌", category: "transport", description: "Private intercity bus booking platform", externalUrl: "https://magiya.lk/", tags: ["bus", "transport", "private", "intercity"] },
+            
       // Hotels & Stays
       { name: "Booking.com Sri Lanka", slug: "booking-com", icon: "Hotel", category: "hotels-stays", description: "Find the best hotels and stays", externalUrl: "https://www.booking.com/country/lk.html", featured: true, active: true, tags: ["hotel", "stay", "accommodation"] },
       { name: "Trivago Sri Lanka", slug: "trivago", icon: "Bed", category: "hotels-stays", description: "Compare hotel prices", externalUrl: "https://ar.trivago.com/en-145/odr/hotels-sri-lanka", active: true, tags: ["hotel", "compare"] },
