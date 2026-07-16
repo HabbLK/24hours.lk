@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X, Search } from "lucide-react";
-import { useState, useEffect } from "react";
-import IconRenderer from "./IconRenderer";
-
-export default function Navbar({ categories }: { categories: any[] }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+import { Bot } from "lucide-react";
+import connectDB from "@/lib/db";
+import Category from "@/models/Category";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,36 +27,22 @@ export default function Navbar({ categories }: { categories: any[] }) {
               <span className="text-brand-red">24</span>hours.lk
             </Link>
           </div>
-
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {categories?.slice(0, 5).map((category: any) => (
-              <Link 
-                key={category._id} 
-                href={`/category/${category.slug}`} 
-                className="text-sm font-medium text-gray-300 hover:text-white transition-colors relative group"
-              >
+            {categories.map((category: any) => (
+              <Link key={category._id.toString()} href={`/category/${category.slug}`} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 {category.name}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-red transition-all group-hover:w-full" />
               </Link>
             ))}
-            <Link 
-              href="/search" 
-              className="px-4 py-2 bg-brand-red hover:bg-brand-red-dk text-white rounded-lg text-sm font-bold transition-all hover:scale-105"
-            >
-              Search
-            </Link>
-          </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
-              aria-label="Toggle menu"
+            <Link
+              href="/assistant"
+              title="Ask 24hours.lk — book services by chatting with our assistant"
+              className="relative flex items-center justify-center w-10 h-10 rounded-full bg-brand-red hover:bg-brand-red-dk transition-colors"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
-            </button>
+              <Bot className="w-5 h-5 text-white" />
+              <span className="sr-only">Ask 24hours.lk — book services by chatting with our assistant</span>
+            </Link>
           </div>
         </div>
       </div>
