@@ -49,8 +49,14 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
               )}
             </div>
             <h1 className="text-4xl md:text-5xl font-heading font-bold text-brand-ink mb-4">{guide.title}</h1>
-            {guide.description && (
-              <p className="text-lg text-gray-600">{guide.description}</p>
+            {guide.keywords && guide.keywords.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {guide.keywords.map((keyword, idx) => (
+                  <span key={idx} className="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                    {keyword}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
           
