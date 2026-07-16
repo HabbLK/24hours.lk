@@ -52,7 +52,7 @@ export default function NewsletterCTA() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="flex-1 px-6 py-4 rounded-xl sm:rounded-l-xl sm:rounded-r-none text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-red"
+              className="flex-1 px-6 py-4 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-white text-gray-900 placeholder-gray-500 border-2 border-brand-red/50 focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-brand-red"
             />
             <button
               type="submit"
@@ -73,7 +73,7 @@ export default function NewsletterCTA() {
           </div>
         </form>
 
-        <p className="text-sm text-gray-500 mt-4">
+        <p className="text-sm text-gray-400 mt-4">
           We respect your privacy. Unsubscribe at any time.
         </p>
       </div>
