@@ -20,20 +20,26 @@ function StatCard({ icon, value, label, suffix = "", delay }: StatProps) {
     const increment = value / steps;
     const stepDuration = duration / steps;
 
-    setTimeout(() => {
+    let timeoutId: NodeJS.Timeout;
+    let timerId: NodeJS.Timeout;
+
+    timeoutId = setTimeout(() => {
       let current = 0;
-      const timer = setInterval(() => {
+      timerId = setInterval(() => {
         current += increment;
         if (current >= value) {
           setCount(value);
-          clearInterval(timer);
+          clearInterval(timerId);
         } else {
           setCount(Math.floor(current));
         }
       }, stepDuration);
-
-      return () => clearInterval(timer);
     }, delay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(timerId);
+    };
   }, [value, delay]);
 
   return (
