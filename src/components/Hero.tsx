@@ -35,6 +35,7 @@ export default function Hero({ headline, subtext }: { headline: string; subtext:
               <Search className="w-6 h-6 text-gray-400" />
             </div>
             <input 
+              suppressHydrationWarning
               type="text" 
               placeholder="E.g. Renew driving licence, book a bus..." 
               className="w-full bg-transparent border-none text-gray-900 px-4 py-3 focus:outline-none text-lg"
