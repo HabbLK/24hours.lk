@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   description: "24hours.lk is your one-stop destination for finding and accessing essential services across Sri Lanka. Search for government services, healthcare, transportation, and more - all in one place, 24/7.",
   keywords: ["Sri Lanka services", "government services", "online services", "service directory", "24hours.lk", "healthcare", "transportation", "utilities"],
   authors: [{ name: "HABB PVT LTD" }],
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     title: "24hours.lk - Sri Lanka's Unified Service Hub",
     description: "Find and access any service in Sri Lanka - government, healthcare, transportation, and more. Available 24/7.",

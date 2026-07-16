@@ -42,20 +42,20 @@ export default function Hero({ headline, subtext }: { headline: string; subtext:
         
         {/* Simplified Search Form */}
         <form onSubmit={handleSearch} className="max-w-xl mx-auto mb-10 sm:mb-12">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
             <input 
               suppressHydrationWarning
               type="text" 
               placeholder="Search services..." 
-              className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-white text-brand-ink text-sm sm:text-base font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red border-2 border-brand-red/20 focus:border-brand-red transition-all"
+              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-l-lg sm:rounded-r-none bg-white text-brand-ink text-xs sm:text-base font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red border-2 border-brand-red/20 focus:border-brand-red transition-all"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             <button 
               type="submit" 
-              className="px-6 sm:px-8 py-3 sm:py-4 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-xl sm:rounded-r-xl sm:rounded-l-none transition-all hover:shadow-lg hover:shadow-brand-red/40 active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
+              className="px-3 sm:px-6 py-2.5 sm:py-3 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg sm:rounded-r-lg sm:rounded-l-none transition-all hover:shadow-lg hover:shadow-brand-red/40 active:scale-95 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-base"
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Search className="w-4 h-4" />
               <span className="hidden sm:inline">Search</span>
             </button>
           </div>
