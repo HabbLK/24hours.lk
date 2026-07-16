@@ -4,13 +4,20 @@ import Category from "@/models/Category";
 import Service from "@/models/Service";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 import FeaturedServices from "@/components/FeaturedServices";
+import IconRenderer from "@/components/IconRenderer";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   await connectDB();
   
-  const category = await Category.findOne({ slug, active: true }).lean();
+  const [category, allCategories] = await Promise.all([
+    Category.findOne({ slug, active: true }).lean(),
+    Category.find({ active: true }).sort({ sortOrder: 1 }).lean(),
+  ]);
   
   if (!category) {
     notFound();
@@ -20,29 +27,58 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
-      <Navbar />
+      <Navbar categories={allCategories as any} />
       <main className="flex-grow pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-gray-100" style={{ color: category.color || 'inherit' }}>
-              {category.icon}
+          {/* Back Button */}
+          <Link 
+            href="/" 
+            className="inline-flex items-center text-sm font-medium text-brand-red hover:text-brand-red-dk mb-8 transition-colors group animate-fade-in"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" /> 
+            Back to Home
+          </Link>
+
+          {/* Category Header */}
+          <div className="flex items-start gap-6 mb-12 animate-fade-in-up">
+            <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-white to-gray-50 rounded-2xl flex items-center justify-center text-4xl shadow-lg border-2 border-gray-100">
+              {category.icon && <IconRenderer iconName={category.icon} className="w-10 h-10" />}
             </div>
-            <div>
-              <h1 className="text-3xl font-heading font-bold text-brand-ink">{category.name}</h1>
-              <p className="text-gray-500 mt-1">{category.description || `Explore all ${category.name.toLowerCase()} services`}</p>
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-heading font-bold text-brand-ink mb-3">{category.name}</h1>
+              <p className="text-lg text-gray-600">{category.description || `Explore all ${category.name.toLowerCase()} services available across Sri Lanka`}</p>
+              <div className="mt-4 flex items-center gap-3">
+                <span className="inline-block bg-brand-red/10 text-brand-red text-sm font-bold px-3 py-1 rounded-full">
+                  {services.length} Service{services.length !== 1 ? 's' : ''} Available
+                </span>
+              </div>
             </div>
           </div>
           
+          {/* Services Grid */}
           {services.length > 0 ? (
-            <FeaturedServices services={services as any} />
+            <div className="animate-fade-in-up delay-200">
+              <FeaturedServices services={services as any} />
+            </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-              <p className="text-gray-500">No services found in this category yet.</p>
+            <div className="text-center py-32 bg-white rounded-2xl border border-gray-200 shadow-sm animate-fade-in-up">
+              <div className="mb-4 opacity-50 flex justify-center">
+                {category.icon && <IconRenderer iconName={category.icon} className="w-16 h-16" />}
+              </div>
+              <h2 className="text-2xl font-bold text-gray-700 mb-2">No services yet</h2>
+              <p className="text-gray-500 mb-6">We're working on adding services to this category.</p>
+              <Link 
+                href="/" 
+                className="inline-block px-6 py-3 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg transition-all hover:scale-105"
+              >
+                Explore Other Categories
+              </Link>
             </div>
           )}
         </div>
       </main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 }

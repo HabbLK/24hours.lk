@@ -93,16 +93,16 @@ async function seed() {
 
     // 2. Seed Categories
     const categoriesData = [
-      { name: "Transport", slug: "transport", icon: "🚌", color: "#4F46E5", sortOrder: 1 },
-      { name: "Hotels & Stays", slug: "hotels-stays", icon: "🏨", color: "#10B981", sortOrder: 2 },
-      { name: "Entertainment", slug: "entertainment", icon: "🎬", color: "#F59E0B", sortOrder: 3 },
-      { name: "Health & Medical", slug: "health-medical", icon: "🏥", color: "#EF4444", sortOrder: 4 },
-      { name: "Government Services", slug: "government", icon: "🏛️", color: "#6B7280", sortOrder: 5 },
-      { name: "Delivery & Logistics", slug: "delivery", icon: "📦", color: "#8B5CF6", sortOrder: 6 },
-      { name: "Food & Dining", slug: "food", icon: "🍽️", color: "#F97316", sortOrder: 7 },
-      { name: "Freelance & Jobs", slug: "jobs", icon: "💼", color: "#06B6D4", sortOrder: 8 },
-      { name: "Education", slug: "education", icon: "🎓", color: "#3B82F6", sortOrder: 9 },
-      { name: "Finance & Payments", slug: "finance", icon: "💰", color: "#14B8A6", sortOrder: 10 },
+      { name: "Transport", slug: "transport", icon: "Bus", color: "#4F46E5", sortOrder: 1, active: true },
+      { name: "Hotels & Stays", slug: "hotels-stays", icon: "Hotel", color: "#10B981", sortOrder: 2, active: true },
+      { name: "Entertainment", slug: "entertainment", icon: "Film", color: "#F59E0B", sortOrder: 3, active: true },
+      { name: "Health & Medical", slug: "health-medical", icon: "Heart", color: "#EF4444", sortOrder: 4, active: true },
+      { name: "Government Services", slug: "government", icon: "Landmark", color: "#6B7280", sortOrder: 5, active: true },
+      { name: "Delivery & Logistics", slug: "delivery", icon: "Package", color: "#8B5CF6", sortOrder: 6, active: true },
+      { name: "Food & Dining", slug: "food", icon: "UtensilsCrossed", color: "#F97316", sortOrder: 7, active: true },
+      { name: "Freelance & Jobs", slug: "jobs", icon: "Briefcase", color: "#06B6D4", sortOrder: 8, active: true },
+      { name: "Education", slug: "education", icon: "GraduationCap", color: "#3B82F6", sortOrder: 9, active: true },
+      { name: "Finance & Payments", slug: "finance", icon: "Wallet", color: "#14B8A6", sortOrder: 10, active: true },
     ];
     await Category.insertMany(categoriesData);
     console.log("Categories seeded");
@@ -123,37 +123,37 @@ async function seed() {
       { name: "Magiya.lk", slug: "magiya-lk", icon: "🚌", category: "transport", description: "Private intercity bus booking platform", externalUrl: "https://magiya.lk/", tags: ["bus", "transport", "private", "intercity"] },
             
       // Hotels & Stays
-      { name: "Booking.com Sri Lanka", slug: "booking-com", icon: "🏨", category: "hotels-stays", description: "Find the best hotels and stays", externalUrl: "https://www.booking.com/country/lk.html", featured: true, tags: ["hotel", "stay", "accommodation"] },
-      { name: "Trivago Sri Lanka", slug: "trivago", icon: "🛏️", category: "hotels-stays", description: "Compare hotel prices", externalUrl: "https://ar.trivago.com/en-145/odr/hotels-sri-lanka", tags: ["hotel", "compare"] },
-      { name: "Agoda Sri Lanka", slug: "agoda", icon: "🏖️", category: "hotels-stays", description: "Hotels and resorts", externalUrl: "https://www.agoda.com/country/sri-lanka.html", tags: ["hotel", "resort"] },
-      { name: "Airbnb Sri Lanka", slug: "airbnb", icon: "🏠", category: "hotels-stays", description: "Vacation rentals and experiences", externalUrl: "https://www.airbnb.com/s/Sri-Lanka", featured: true, tags: ["rental", "homestay", "villa"] },
+      { name: "Booking.com Sri Lanka", slug: "booking-com", icon: "Hotel", category: "hotels-stays", description: "Find the best hotels and stays", externalUrl: "https://www.booking.com/country/lk.html", featured: true, active: true, tags: ["hotel", "stay", "accommodation"] },
+      { name: "Trivago Sri Lanka", slug: "trivago", icon: "Bed", category: "hotels-stays", description: "Compare hotel prices", externalUrl: "https://ar.trivago.com/en-145/odr/hotels-sri-lanka", active: true, tags: ["hotel", "compare"] },
+      { name: "Agoda Sri Lanka", slug: "agoda", icon: "Palmtree", category: "hotels-stays", description: "Hotels and resorts", externalUrl: "https://www.agoda.com/country/sri-lanka.html", active: true, tags: ["hotel", "resort"] },
+      { name: "Airbnb Sri Lanka", slug: "airbnb", icon: "Home", category: "hotels-stays", description: "Vacation rentals and experiences", externalUrl: "https://www.airbnb.com/s/Sri-Lanka", featured: true, active: true, tags: ["rental", "homestay", "villa"] },
 
       // Entertainment
-      { name: "BookMyShow LK", slug: "bookmyshow", icon: "🍿", category: "entertainment", description: "Movie and event tickets", externalUrl: "https://lk.bookmyshow.com", featured: true, tags: ["movies", "cinema", "events"] },
-      { name: "Eventbrite Sri Lanka", slug: "eventbrite", icon: "🎟️", category: "entertainment", description: "Find local events", externalUrl: "https://www.eventbrite.lk", tags: ["events", "tickets"] },
+      { name: "BookMyShow LK", slug: "bookmyshow", icon: "Popcorn", category: "entertainment", description: "Movie and event tickets", externalUrl: "https://lk.bookmyshow.com", featured: true, active: true, tags: ["movies", "cinema", "events"] },
+      { name: "Eventbrite Sri Lanka", slug: "eventbrite", icon: "Ticket", category: "entertainment", description: "Find local events", externalUrl: "https://www.eventbrite.lk", active: true, tags: ["events", "tickets"] },
 
       // Health
-      { name: "eChannelling", slug: "echannelling", icon: "🩺", category: "health-medical", description: "Channel a doctor easily", externalUrl: "https://www.echannelling.com", featured: true, tags: ["doctor", "hospital", "channeling"] },
-      { name: "DL Medical (echannelling)", slug: "dl-medical", icon: "👁️", category: "health-medical", description: "Book driving licence medical test", externalUrl: "https://www.echannelling.com/driving-license-medical", tags: ["medical", "driving", "licence"] },
-      { name: "1990 Ambulance", slug: "1990-ambulance", icon: "🚑", category: "health-medical", description: "Suwaseriya Emergency Ambulance", externalUrl: "tel:1990", featured: true, tags: ["emergency", "ambulance"] },
-      { name: "Osu Sala", slug: "osu-sala", icon: "💊", category: "health-medical", description: "Government Pharmacy locator", externalUrl: "https://www.nmra.gov.lk", tags: ["pharmacy", "medicine"] },
+      { name: "eChannelling", slug: "echannelling", icon: "Stethoscope", category: "health-medical", description: "Channel a doctor easily", externalUrl: "https://www.echannelling.com", featured: true, active: true, tags: ["doctor", "hospital", "channeling"] },
+      { name: "DL Medical (echannelling)", slug: "dl-medical", icon: "Eye", category: "health-medical", description: "Book driving licence medical test", externalUrl: "https://www.echannelling.com/driving-license-medical", active: true, tags: ["medical", "driving", "licence"] },
+      { name: "1990 Ambulance", slug: "1990-ambulance", icon: "Ambulance", category: "health-medical", description: "Suwaseriya Emergency Ambulance", externalUrl: "tel:1990", featured: true, active: true, tags: ["emergency", "ambulance"] },
+      { name: "Osu Sala", slug: "osu-sala", icon: "Pill", category: "health-medical", description: "Government Pharmacy locator", externalUrl: "https://www.nmra.gov.lk", active: true, tags: ["pharmacy", "medicine"] },
 
       // Government
-      { name: "Department of Motor Traffic", slug: "dmt", icon: "🚗", category: "government", description: "Driving licences and vehicle registration", externalUrl: "https://www.motortraffic.gov.lk", featured: true, tags: ["dmt", "licence", "vehicle"] },
-      { name: "Department of Immigration", slug: "immigration", icon: "🛂", category: "government", description: "Passports and visas", externalUrl: "https://www.immigration.gov.lk", tags: ["passport", "visa"] },
-      { name: "NIDOA (NIC)", slug: "nic", icon: "🪪", category: "government", description: "National Identity Card services", externalUrl: "https://www.ec.gov.lk", tags: ["nic", "id"] },
+      { name: "Department of Motor Traffic", slug: "dmt", icon: "Car", category: "government", description: "Driving licences and vehicle registration", externalUrl: "https://www.motortraffic.gov.lk", featured: true, active: true, tags: ["dmt", "licence", "vehicle"] },
+      { name: "Department of Immigration", slug: "immigration", icon: "Passport", category: "government", description: "Passports and visas", externalUrl: "https://www.immigration.gov.lk", active: true, tags: ["passport", "visa"] },
+      { name: "NIDOA (NIC)", slug: "nic", icon: "IdCard", category: "government", description: "National Identity Card services", externalUrl: "https://www.ec.gov.lk", active: true, tags: ["nic", "id"] },
       
       // Delivery
-      { name: "ParcelBuddy", slug: "parcelbuddy", icon: "📦", category: "delivery", description: "P2P parcel delivery", externalUrl: "https://parcelbuddy.lk", tags: ["delivery", "p2p"] },
-      { name: "Kapruka", slug: "kapruka", icon: "🎁", category: "delivery", description: "Online shopping and delivery", externalUrl: "https://www.kapruka.com", featured: true, tags: ["gift", "delivery", "shopping"] },
+      { name: "ParcelBuddy", slug: "parcelbuddy", icon: "Package", category: "delivery", description: "P2P parcel delivery", externalUrl: "https://parcelbuddy.lk", active: true, tags: ["delivery", "p2p"] },
+      { name: "Kapruka", slug: "kapruka", icon: "Gift", category: "delivery", description: "Online shopping and delivery", externalUrl: "https://www.kapruka.com", featured: true, active: true, tags: ["gift", "delivery", "shopping"] },
 
       // Food
-      { name: "PickMe Food", slug: "pickme-food", icon: "🍔", category: "food", description: "Food delivery from local restaurants", externalUrl: "https://pickme.lk/food", featured: true, tags: ["food", "delivery"] },
-      { name: "Uber Eats LK", slug: "uber-eats", icon: "🍕", category: "food", description: "Global food delivery app", externalUrl: "https://www.ubereats.com", tags: ["food", "delivery"] },
+      { name: "PickMe Food", slug: "pickme-food", icon: "Utensils", category: "food", description: "Food delivery from local restaurants", externalUrl: "https://pickme.lk/food", featured: true, active: true, tags: ["food", "delivery"] },
+      { name: "Uber Eats LK", slug: "uber-eats", icon: "Pizza", category: "food", description: "Global food delivery app", externalUrl: "https://www.ubereats.com", active: true, tags: ["food", "delivery"] },
       
       // Jobs
-      { name: "TopJobs Sri Lanka", slug: "topjobs", icon: "💼", category: "jobs", description: "Local job portal", externalUrl: "https://www.topjobs.lk", featured: true, tags: ["job", "career", "work"] },
-      { name: "Fiverr", slug: "fiverr", icon: "💻", category: "jobs", description: "Global freelance marketplace", externalUrl: "https://www.fiverr.com", tags: ["freelance", "gig"] },
+      { name: "TopJobs Sri Lanka", slug: "topjobs", icon: "Briefcase", category: "jobs", description: "Local job portal", externalUrl: "https://www.topjobs.lk", featured: true, active: true, tags: ["job", "career", "work"] },
+      { name: "Fiverr", slug: "fiverr", icon: "Laptop", category: "jobs", description: "Global freelance marketplace", externalUrl: "https://www.fiverr.com", active: true, tags: ["freelance", "gig"] },
     ];
     await Service.insertMany(servicesData);
     console.log("Services seeded");
