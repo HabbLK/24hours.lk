@@ -136,8 +136,6 @@ export const FLOWS: Record<string, FlowConfig> = {
       },
     ],
   },
-
-  
   taxi: {
     flowKey: "taxi",
     label: "Taxi",
@@ -153,6 +151,16 @@ export const FLOWS: Record<string, FlowConfig> = {
     matchTags: ["doctor", "channeling"],
     slots: [
       { key: "specialty", question: "What kind of doctor or specialty do you need?", widget: "text" },
+      {
+        key: "hospital",
+        question: "Any preferred hospital? (or type 'any')",
+        widget: "text",
+      },
+      {
+        key: "doctorName",
+        question: "Looking for a specific doctor? (or type 'any')",
+        widget: "text",
+      },
       { key: "date", question: "Preferred appointment date?", widget: "date" },
     ],
   },

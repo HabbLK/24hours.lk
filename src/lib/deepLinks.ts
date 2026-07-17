@@ -139,6 +139,57 @@ const DEEP_LINK_TEMPLATES: Record<string, (slots: Record<string, string>) => str
       `&flexibleDate=off&allowRedemption=N`
     );
   },
+
+  // Confirmed against echannelling.com's own generated search URL.
+  // hospital_code/isHospitalView only get added when a specific hospital
+  // is chosen — omitted entirely for "any hospital" searches.
+  "echannelling": (slots) => {
+    const specCode = ECHANNELLING_SPECIALIZATIONS[(slots.specialty || "").toLowerCase()];
+    if (!specCode) throw new Error(`Unknown specialization — no code mapping for: ${slots.specialty}`);
+
+    const dateFormatted = toDDMMYYYY(slots.date || "");
+    const hospitalCode = slots.hospital && slots.hospital.toLowerCase() !== "any"
+      ? ECHANNELLING_HOSPITALS[slots.hospital.toLowerCase()]
+      : null;
+
+    return (
+      `https://www.echannelling.com/doctor-search?isSpec=true` +
+      (hospitalCode ? `&hospital_code=${hospitalCode}&isHospitalView=true` : "") +
+      `&session_date=${dateFormatted}` +
+      `&specialization=${encodeURIComponent(capitalize(slots.specialty || ""))}` +
+      `&specialization_code=${specCode}`
+    );
+  },
+
+  // Confirmed against doc.lk's own generated search URL. hospital=0 means
+  // "any hospital" — confirmed directly from a real search. doctor is left
+  // blank when no specific doctor name is given. date uses "Month D, YYYY"
+  // format, URL-encoded (spaces -> +, comma -> %2C).
+  // specialization code table is still being built — see DOC_LK_SPECIALIZATIONS.
+  "doc-lk": (slots) => {
+    const specCode = DOC_LK_SPECIALIZATIONS[(slots.specialty || "").toLowerCase()];
+    if (!specCode) throw new Error(`Unknown Doc.lk specialization — no code mapping for: ${slots.specialty}`);
+
+    const hospitalCode = slots.hospital && slots.hospital.toLowerCase() !== "any"
+      ? DOC_LK_HOSPITALS[slots.hospital.toLowerCase()]
+      : "0"; // 0 = any hospital, confirmed
+    if (hospitalCode === undefined) {
+      throw new Error(`Unknown Doc.lk hospital — no ID mapping for: ${slots.hospital}`);
+    }
+
+    const doctorName = slots.doctorName && slots.doctorName.toLowerCase() !== "any"
+      ? slots.doctorName
+      : "";
+
+    const dateFormatted = toDocLkDate(slots.date || "");
+
+    return (
+      `https://www.doc.lk/search?doctor=${encodeURIComponent(doctorName)}` +
+      `&hospital=${hospitalCode}` +
+      `&specialization=${specCode}` +
+      `&date=${encodeURIComponent(dateFormatted)}`
+    );
+  },
 };
 
 // Known Magiya city IDs — extend this as you discover more by doing a
@@ -178,20 +229,14 @@ const TRIVAGO_CITY_IDS: Record<string, string> = {
   kandy: "16106",
 };
 
-// City/place name -> IATA airport code, lowercase keys. Covers Sri Lanka's
-// own airports plus common international destinations Qatar Airways flies
-// (mostly via Doha). Extend as needed — same incremental pattern as
-// MAGIYA_CITY_IDS and TRIVAGO_CITY_IDS.
+// City/place name -> IATA airport code, lowercase keys.
 const AIRPORT_IATA_CODES: Record<string, string> = {
-  // Sri Lanka
   colombo: "CMB",
-  bandaranaike: "CMB", // in case someone types the airport name itself
+  bandaranaike: "CMB",
   jaffna: "JAF",
   trincomalee: "TRR",
   batticaloa: "BTC",
   hambantota: "HRI",
-
-  // Common international destinations (Qatar Airways network)
   chennai: "MAA",
   mumbai: "BOM",
   delhi: "DEL",
@@ -214,6 +259,46 @@ const AIRPORT_IATA_CODES: Record<string, string> = {
   istanbul: "IST",
 };
 
+
+// eChannelling specialization -> specialization_code. Only Cardiologist
+// confirmed so far — extend by manually searching other specialties on
+// echannelling.com and reading the resulting URL.
+const ECHANNELLING_SPECIALIZATIONS: Record<string, string> = {
+  cardiologist: "01",
+};
+
+// eChannelling hospital name -> hospital_code. Empty for now — only
+// needed when a user picks a SPECIFIC hospital (not "any"). Extend by
+// searching with a hospital selected and reading hospital_code from the URL.
+const ECHANNELLING_HOSPITALS: Record<string, string> = {
+  // e.g. "asiri central": "H03", // <- unconfirmed, verify before adding
+};
+
+// Doc.lk specialization -> specialization code. STILL NEEDS THE FIRST
+// ENTRY — we know "4" is a valid code from a real search, but not which
+// specialty it maps to. Fill this in once confirmed.
+// Doc.lk specialization name -> code. Confirmed from real searches.
+const DOC_LK_SPECIALIZATIONS: Record<string, string> = {
+  cardiologist: "4",
+  acupuncture: "195",
+  neurologist: "149",
+  psychiatrist: "29",
+  "dental surgeon": "46",
+  // "10" is confirmed valid but its specialty name isn't known yet —
+  // add it once confirmed (was seen with Rajagiriya Hospital, Dambulla).
+};
+
+// Doc.lk hospital name -> ID. "0" = any hospital, confirmed separately
+// in the doc-lk template itself. Confirmed from real searches.
+const DOC_LK_HOSPITALS: Record<string, string> = {
+  "asiri hospital - kandy": "121",
+  "durdans hospital - colombo 03": "145",
+  "jdr hospital - jaffna": "367",
+  "kings hospital - colombo 05": "128",
+  "new mount hospital - hatton": "217",
+  "rajagiriya hospital (pvt) ltd - dambulla": "341",
+};
+
 function toIata(place: string): string | null {
   return AIRPORT_IATA_CODES[(place || "").trim().toLowerCase()] || null;
 }
@@ -224,7 +309,7 @@ function capitalize(s: string): string {
 
 function toDDMMYYYY(iso: string): string {
   const [year, month, day] = iso.split("-");
-  if (!year || !month || !day) return iso; // not a valid YYYY-MM-DD, return as-is
+  if (!year || !month || !day) return iso;
   return `${day}-${month}-${year}`;
 }
 
@@ -233,7 +318,21 @@ function slugify(s: string): string {
 }
 
 function toYYYYMMDD(iso: string): string {
-  return iso.replace(/-/g, ""); // "2026-07-18" -> "20260718"
+  return iso.replace(/-/g, "");
+}
+
+// Doc.lk wants "Month D, YYYY" e.g. "July 18, 2026" — matches what their
+// own search form produces, confirmed from a real generated URL.
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+function toDocLkDate(iso: string): string {
+  const [year, month, day] = iso.split("-");
+  if (!year || !month || !day) return iso;
+  const monthName = MONTH_NAMES[Number(month) - 1];
+  if (!monthName) return iso;
+  return `${monthName} ${Number(day)}, ${year}`;
 }
 
 export function buildDeepLink(

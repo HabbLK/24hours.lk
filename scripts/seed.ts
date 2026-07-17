@@ -147,7 +147,10 @@ async function seed() {
       { name: "DL Medical (echannelling)", slug: "dl-medical", icon: "👁️", category: "health-medical", description: "Book driving licence medical test", externalUrl: "https://www.echannelling.com/driving-license-medical", tags: ["medical", "driving", "licence"] },
       { name: "1990 Ambulance", slug: "1990-ambulance", icon: "🚑", category: "health-medical", description: "Suwaseriya Emergency Ambulance", externalUrl: "tel:1990", featured: true, tags: ["emergency", "ambulance"] },
       { name: "Osu Sala", slug: "osu-sala", icon: "💊", category: "health-medical", description: "Government Pharmacy locator", externalUrl: "https://www.nmra.gov.lk", tags: ["pharmacy", "medicine"] },
-
+      { name: "Doc.lk", slug: "doc-lk", icon: "🩺", category: "health-medical", description: "Search and book doctors across Sri Lanka", externalUrl: "https://www.doc.lk", featured: true, tags: ["doctor", "hospital", "channeling"] },
+      { name: "Asiri Health", slug: "asiri-health", icon: "🏥", category: "health-medical", description: "Book appointments across Asiri hospitals", externalUrl: "https://asirihealth.com/doctor-appointment", tags: ["doctor", "hospital", "channeling"] },
+      { name: "Durdans Hospital", slug: "durdans", icon: "🏥", category: "health-medical", description: "Book a doctor appointment at Durdans", externalUrl: "https://www.durdans.com/appointments/search.php", tags: ["doctor", "hospital", "channeling"] },
+      { name: "Nine Wells Hospital", slug: "ninewells", icon: "🏥", category: "health-medical", description: "Book a doctor appointment at Nine Wells", externalUrl: "https://www.ninewellshospital.lk/appointment-booking/", tags: ["doctor", "hospital", "channeling"] },
       // Government
       { name: "Department of Motor Traffic", slug: "dmt", icon: "🚗", category: "government", description: "Driving licences and vehicle registration", externalUrl: "https://www.motortraffic.gov.lk", featured: true, tags: ["dmt", "licence", "vehicle"] },
       { name: "Department of Immigration", slug: "immigration", icon: "🛂", category: "government", description: "Passports and visas", externalUrl: "https://www.immigration.gov.lk", tags: ["passport", "visa"] },
