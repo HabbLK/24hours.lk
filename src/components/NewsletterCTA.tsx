@@ -47,12 +47,13 @@ export default function NewsletterCTA() {
         <form onSubmit={handleSubmit} className="max-w-md mx-auto">
           <div className="flex flex-col sm:flex-row gap-3">
             <input
+              suppressHydrationWarning
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="flex-1 px-6 py-4 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-white text-gray-900 placeholder-gray-500 border-2 border-brand-red/50 focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-brand-red"
+              className="flex-1 px-6 py-4 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-white text-gray-900..."
             />
             <button
               type="submit"

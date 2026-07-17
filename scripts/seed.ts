@@ -110,50 +110,60 @@ async function seed() {
     // 3. Seed Services
     const servicesData = [
       // Transport
+      // NOTE: SLTB below has NO `secondaryUrls` field. Your live DB currently has
+      // Magiya/BusSeat nested inside SLTB's secondaryUrls from an older seed run —
+      // that goes away once this file is run, since Magiya.lk and BusSeat.lk are
+      // now separate top-level services below (tagged "bus" so they show up
+      // alongside SLTB in bus search results).
       { name: "Bus Tickets (SLTB)", slug: "bus-tickets-sltb", icon: "🚌", category: "transport", description: "Official SLTB bus booking platform", externalUrl: "https://sltb.eseat.lk", featured: true, tags: ["bus", "transport", "sltb", "intercity"] },
       { name: "PickMe Taxi", slug: "pickme-taxi", icon: "🚕", category: "transport", description: "Local ride-hailing app", externalUrl: "https://pickme.lk", featured: true, tags: ["taxi", "tuk", "ride"] },
       { name: "Uber Sri Lanka", slug: "uber-sri-lanka", icon: "🚗", category: "transport", description: "Global ride-hailing service", externalUrl: "https://uber.com", tags: ["taxi", "ride"] },
       { name: "Airport Taxi", slug: "airport-taxi", icon: "✈️", category: "transport", description: "Reliable airport transfers", externalUrl: "https://aerotaxi.lk", tags: ["airport", "transfer", "taxi"] },
+
+      // NEW: these 4 flight services are NOT in your live DB yet — missing entirely
       { name: "SriLankan Airlines", slug: "srilankan-airlines", icon: "✈️", category: "transport", description: "National carrier — domestic and international flights", externalUrl: "https://www.srilankan.com", featured: true, tags: ["flight", "airline", "transport"] },
       { name: "FitsAir", slug: "fitsair", icon: "✈️", category: "transport", description: "Low-cost carrier, domestic and regional routes", externalUrl: "https://www.fitsair.com", tags: ["flight", "airline"] },
       { name: "Emirates", slug: "emirates", icon: "✈️", category: "transport", description: "International flights via Dubai", externalUrl: "https://www.emirates.com", tags: ["flight", "airline"] },
       { name: "Qatar Airways", slug: "qatar-airways", icon: "✈️", category: "transport", description: "International flights via Doha", externalUrl: "https://www.qatarairways.com", tags: ["flight", "airline"] },
+      { name: "Sri Lanka Railways (Seat Reservation)", slug: "slr-seat-reservation", icon: "🚆", category: "transport", description: "Official government train seat booking platform", externalUrl: "https://seatreservation.railway.gov.lk", featured: true, tags: ["train", "railway"], },
+      // NEW: these 3 bus services are NOT in your live DB yet — this is the fix
+      // for the "only 1 bus option" bug you reported
       { name: "BusSeat.lk", slug: "busseat-lk", icon: "🚌", category: "transport", description: "Private intercity bus seat booking platform", externalUrl: "https://busseat.lk/", tags: ["bus", "transport", "private", "intercity"] },
       { name: "Bus.lk", slug: "bus-lk", icon: "🚌", category: "transport", description: "Private intercity bus booking platform", externalUrl: "https://bus.lk/", tags: ["bus", "transport", "private", "intercity"] },
       { name: "Magiya.lk", slug: "magiya-lk", icon: "🚌", category: "transport", description: "Private intercity bus booking platform", externalUrl: "https://magiya.lk/", tags: ["bus", "transport", "private", "intercity"] },
-            
+
       // Hotels & Stays
-      { name: "Booking.com Sri Lanka", slug: "booking-com", icon: "Hotel", category: "hotels-stays", description: "Find the best hotels and stays", externalUrl: "https://www.booking.com/country/lk.html", featured: true, active: true, tags: ["hotel", "stay", "accommodation"] },
-      { name: "Trivago Sri Lanka", slug: "trivago", icon: "Bed", category: "hotels-stays", description: "Compare hotel prices", externalUrl: "https://ar.trivago.com/en-145/odr/hotels-sri-lanka", active: true, tags: ["hotel", "compare"] },
-      { name: "Agoda Sri Lanka", slug: "agoda", icon: "Palmtree", category: "hotels-stays", description: "Hotels and resorts", externalUrl: "https://www.agoda.com/country/sri-lanka.html", active: true, tags: ["hotel", "resort"] },
-      { name: "Airbnb Sri Lanka", slug: "airbnb", icon: "Home", category: "hotels-stays", description: "Vacation rentals and experiences", externalUrl: "https://www.airbnb.com/s/Sri-Lanka", featured: true, active: true, tags: ["rental", "homestay", "villa"] },
+      { name: "Booking.com Sri Lanka", slug: "booking-com", icon: "🏨", category: "hotels-stays", description: "Find the best hotels and stays", externalUrl: "https://www.booking.com/country/lk.html", featured: true, tags: ["hotel", "stay", "accommodation"] },
+      { name: "Trivago Sri Lanka", slug: "trivago", icon: "🛏️", category: "hotels-stays", description: "Compare hotel prices", externalUrl: "https://ar.trivago.com/en-145/odr/hotels-sri-lanka", tags: ["hotel", "compare"] },
+      { name: "Agoda Sri Lanka", slug: "agoda", icon: "🏖️", category: "hotels-stays", description: "Hotels and resorts", externalUrl: "https://www.agoda.com/country/sri-lanka.html", tags: ["hotel", "resort"] },
+      { name: "Airbnb Sri Lanka", slug: "airbnb", icon: "🏠", category: "hotels-stays", description: "Vacation rentals and experiences", externalUrl: "https://www.airbnb.com/s/Sri-Lanka", featured: true, tags: ["rental", "homestay", "villa"] },
 
       // Entertainment
-      { name: "BookMyShow LK", slug: "bookmyshow", icon: "Popcorn", category: "entertainment", description: "Movie and event tickets", externalUrl: "https://lk.bookmyshow.com", featured: true, active: true, tags: ["movies", "cinema", "events"] },
-      { name: "Eventbrite Sri Lanka", slug: "eventbrite", icon: "Ticket", category: "entertainment", description: "Find local events", externalUrl: "https://www.eventbrite.lk", active: true, tags: ["events", "tickets"] },
+      { name: "BookMyShow LK", slug: "bookmyshow", icon: "🍿", category: "entertainment", description: "Movie and event tickets", externalUrl: "https://lk.bookmyshow.com", featured: true, tags: ["movies", "cinema", "events"] },
+      { name: "Eventbrite Sri Lanka", slug: "eventbrite", icon: "🎟️", category: "entertainment", description: "Find local events", externalUrl: "https://www.eventbrite.lk", tags: ["events", "tickets"] },
 
       // Health
-      { name: "eChannelling", slug: "echannelling", icon: "Stethoscope", category: "health-medical", description: "Channel a doctor easily", externalUrl: "https://www.echannelling.com", featured: true, active: true, tags: ["doctor", "hospital", "channeling"] },
-      { name: "DL Medical (echannelling)", slug: "dl-medical", icon: "Eye", category: "health-medical", description: "Book driving licence medical test", externalUrl: "https://www.echannelling.com/driving-license-medical", active: true, tags: ["medical", "driving", "licence"] },
-      { name: "1990 Ambulance", slug: "1990-ambulance", icon: "Ambulance", category: "health-medical", description: "Suwaseriya Emergency Ambulance", externalUrl: "tel:1990", featured: true, active: true, tags: ["emergency", "ambulance"] },
-      { name: "Osu Sala", slug: "osu-sala", icon: "Pill", category: "health-medical", description: "Government Pharmacy locator", externalUrl: "https://www.nmra.gov.lk", active: true, tags: ["pharmacy", "medicine"] },
+      { name: "eChannelling", slug: "echannelling", icon: "🩺", category: "health-medical", description: "Channel a doctor easily", externalUrl: "https://www.echannelling.com", featured: true, tags: ["doctor", "hospital", "channeling"] },
+      { name: "DL Medical (echannelling)", slug: "dl-medical", icon: "👁️", category: "health-medical", description: "Book driving licence medical test", externalUrl: "https://www.echannelling.com/driving-license-medical", tags: ["medical", "driving", "licence"] },
+      { name: "1990 Ambulance", slug: "1990-ambulance", icon: "🚑", category: "health-medical", description: "Suwaseriya Emergency Ambulance", externalUrl: "tel:1990", featured: true, tags: ["emergency", "ambulance"] },
+      { name: "Osu Sala", slug: "osu-sala", icon: "💊", category: "health-medical", description: "Government Pharmacy locator", externalUrl: "https://www.nmra.gov.lk", tags: ["pharmacy", "medicine"] },
 
       // Government
-      { name: "Department of Motor Traffic", slug: "dmt", icon: "Car", category: "government", description: "Driving licences and vehicle registration", externalUrl: "https://www.motortraffic.gov.lk", featured: true, active: true, tags: ["dmt", "licence", "vehicle"] },
-      { name: "Department of Immigration", slug: "immigration", icon: "Passport", category: "government", description: "Passports and visas", externalUrl: "https://www.immigration.gov.lk", active: true, tags: ["passport", "visa"] },
-      { name: "NIDOA (NIC)", slug: "nic", icon: "IdCard", category: "government", description: "National Identity Card services", externalUrl: "https://www.ec.gov.lk", active: true, tags: ["nic", "id"] },
-      
+      { name: "Department of Motor Traffic", slug: "dmt", icon: "🚗", category: "government", description: "Driving licences and vehicle registration", externalUrl: "https://www.motortraffic.gov.lk", featured: true, tags: ["dmt", "licence", "vehicle"] },
+      { name: "Department of Immigration", slug: "immigration", icon: "🛂", category: "government", description: "Passports and visas", externalUrl: "https://www.immigration.gov.lk", tags: ["passport", "visa"] },
+      { name: "NIDOA (NIC)", slug: "nic", icon: "🪪", category: "government", description: "National Identity Card services", externalUrl: "https://www.ec.gov.lk", tags: ["nic", "id"] },
+
       // Delivery
-      { name: "ParcelBuddy", slug: "parcelbuddy", icon: "Package", category: "delivery", description: "P2P parcel delivery", externalUrl: "https://parcelbuddy.lk", active: true, tags: ["delivery", "p2p"] },
-      { name: "Kapruka", slug: "kapruka", icon: "Gift", category: "delivery", description: "Online shopping and delivery", externalUrl: "https://www.kapruka.com", featured: true, active: true, tags: ["gift", "delivery", "shopping"] },
+      { name: "ParcelBuddy", slug: "parcelbuddy", icon: "📦", category: "delivery", description: "P2P parcel delivery", externalUrl: "https://parcelbuddy.lk", tags: ["delivery", "p2p"] },
+      { name: "Kapruka", slug: "kapruka", icon: "🎁", category: "delivery", description: "Online shopping and delivery", externalUrl: "https://www.kapruka.com", featured: true, tags: ["gift", "delivery", "shopping"] },
 
       // Food
-      { name: "PickMe Food", slug: "pickme-food", icon: "Utensils", category: "food", description: "Food delivery from local restaurants", externalUrl: "https://pickme.lk/food", featured: true, active: true, tags: ["food", "delivery"] },
-      { name: "Uber Eats LK", slug: "uber-eats", icon: "Pizza", category: "food", description: "Global food delivery app", externalUrl: "https://www.ubereats.com", active: true, tags: ["food", "delivery"] },
-      
+      { name: "PickMe Food", slug: "pickme-food", icon: "🍔", category: "food", description: "Food delivery from local restaurants", externalUrl: "https://pickme.lk/food", featured: true, tags: ["food", "delivery"] },
+      { name: "Uber Eats LK", slug: "uber-eats", icon: "🍕", category: "food", description: "Global food delivery app", externalUrl: "https://www.ubereats.com", tags: ["food", "delivery"] },
+
       // Jobs
-      { name: "TopJobs Sri Lanka", slug: "topjobs", icon: "Briefcase", category: "jobs", description: "Local job portal", externalUrl: "https://www.topjobs.lk", featured: true, active: true, tags: ["job", "career", "work"] },
-      { name: "Fiverr", slug: "fiverr", icon: "Laptop", category: "jobs", description: "Global freelance marketplace", externalUrl: "https://www.fiverr.com", active: true, tags: ["freelance", "gig"] },
+      { name: "TopJobs Sri Lanka", slug: "topjobs", icon: "💼", category: "jobs", description: "Local job portal", externalUrl: "https://www.topjobs.lk", featured: true, tags: ["job", "career", "work"] },
+      { name: "Fiverr", slug: "fiverr", icon: "💻", category: "jobs", description: "Global freelance marketplace", externalUrl: "https://www.fiverr.com", tags: ["freelance", "gig"] },
     ];
     await Service.insertMany(servicesData);
     console.log("Services seeded");

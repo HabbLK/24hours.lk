@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Bot } from "lucide-react";
 import { FLOWS, detectIntent, extractEntities, SlotDef } from "@/lib/flowConfigs";
 import { buildDeepLink } from "@/lib/deepLinks";
+import { matchTown } from "@/lib/matchTown";
 
 interface Msg { id: string; role: "bot" | "user"; text: string; }
 interface Provider { _id: string; slug: string; name: string; externalUrl: string; icon?: string; }
@@ -11,9 +12,14 @@ interface Provider { _id: string; slug: string; name: string; externalUrl: strin
 let idc = 1;
 const nid = () => `m${idc++}`;
 
+// Slot keys that represent a place name and should be run through
+// town fuzzy-matching. Every flow uses these same two keys for towns
+// (see flowConfigs.ts), so this list covers flight/bus/train/taxi.
+const TOWN_SLOT_KEYS = new Set(["origin", "destination"]);
+
 export default function RedirectBookingChat() {
   const [messages, setMessages] = useState<Msg[]>([
-    { id: "m0", role: "bot", text: "What would you like to book? e.g. \"book a flight to Chennai\"" },
+    { id: "m0", role: "bot", text: "What would you like to book? e.g. \"Room, Bus, Flight, Hotel, Taxi, Doctor ...\"" },
   ]);
   const [flowKey, setFlowKey] = useState<string | null>(null);
   const [slotIndex, setSlotIndex] = useState(0);
@@ -62,6 +68,20 @@ export default function RedirectBookingChat() {
     return -1;
   }
 
+  // NEW: resolves a raw town string typed by the user (or extracted from
+  // the initial free-text message) to its canonical spelling, e.g.
+  // "Batticalo" -> "Batticaloa", "kilinochi" -> "Kilinochchi". Falls back
+  // to the original input untouched if no confident match is found.
+  function resolveTownIfNeeded(key: string, rawValue: string): { value: string; corrected: boolean } {
+    if (!TOWN_SLOT_KEYS.has(key)) return { value: rawValue, corrected: false };
+    const match = matchTown(rawValue);
+    if (match && match.matched.toLowerCase() !== rawValue.trim().toLowerCase()) {
+      return { value: match.matched, corrected: true };
+    }
+    if (match) return { value: match.matched, corrected: false };
+    return { value: rawValue, corrected: false };
+  }
+
   // First message: detect intent + opportunistically extract entities
   function handleInitialMessage(text: string) {
     userSay(text);
@@ -74,10 +94,20 @@ export default function RedirectBookingChat() {
     const entities = extractEntities(text);
     const flow = FLOWS[detected];
     const filled: Record<string, string> = {};
+    const corrections: string[] = [];
+
     for (const slot of flow.slots) {
-      if (entities[slot.key]) filled[slot.key] = entities[slot.key]!;
+      if (entities[slot.key]) {
+        const { value, corrected } = resolveTownIfNeeded(slot.key, entities[slot.key]!);
+        filled[slot.key] = value;
+        if (corrected) corrections.push(value);
+      }
     }
     setSlots(filled);
+
+    if (corrections.length) {
+      say(`Got it — ${corrections.join(", ")}`);
+    }
 
     const firstUnfilled = nextSlotIndex(flow.slots, filled, 0);
     if (firstUnfilled === -1) {
@@ -89,14 +119,20 @@ export default function RedirectBookingChat() {
     }
   }
 
-  function handleSlotAnswer(value: string, displayText?: string) {
+  function handleSlotAnswer(rawValue: string, displayText?: string) {
     const flow = currentFlow();
     const slot = currentSlotDef();
     if (!flow || !slot) return;
 
-    userSay(displayText ?? value);
+    userSay(displayText ?? rawValue);
+
+    const { value, corrected } = resolveTownIfNeeded(slot.key, rawValue);
     const updated = { ...slots, [slot.key]: value };
     setSlots(updated);
+
+    if (corrected) {
+      say(`Got it — ${value}`);
+    }
 
     const next = nextSlotIndex(flow.slots, updated, slotIndex + 1);
     if (next !== -1) {
@@ -124,26 +160,34 @@ export default function RedirectBookingChat() {
   }
 
   async function handlePickProvider(provider: Provider) {
-    const link = buildDeepLink(provider.slug, provider.externalUrl, slots);
-    userSay(`Continue with ${provider.name}`);
-    say(`Opening ${provider.name} with your details. Complete the booking there.`);
+  let fallbackReason: string | null = null;
+  const link = buildDeepLink(provider.slug, provider.externalUrl, slots, (reason) => {
+    fallbackReason = reason;
+  });
 
-    // Log the intent — this is our only visibility since the actual
-    // booking happens off-site on the provider's own platform.
-    fetch("/api/booking-intents", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        flowKey,
-        slots,
-        serviceSlug: provider.slug,
-        serviceName: provider.name,
-        redirectUrl: link,
-      }),
-    }).catch(() => {}); // best-effort logging, don't block the redirect on it
+  userSay(`Continue with ${provider.name}`);
+  say(`Opening ${provider.name} with your details. Complete the booking there.`);
 
-    window.open(link, "_blank", "noopener,noreferrer");
-  }
+  // Log the intent — this is our only visibility since the actual
+  // booking happens off-site on the provider's own platform. We also
+  // record fallbackReason (e.g. "no ID mapping for: Kandy") so we can
+  // see, from real usage, which towns are worth adding to
+  // MAGIYA_CITY_IDS next — instead of guessing.
+  fetch("/api/booking-intents", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      flowKey,
+      slots,
+      serviceSlug: provider.slug,
+      serviceName: provider.name,
+      redirectUrl: link,
+      deepLinkFallbackReason: fallbackReason,
+    }),
+  }).catch(() => {}); // best-effort logging, don't block the redirect on it
+
+  window.open(link, "_blank", "noopener,noreferrer");
+}
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
