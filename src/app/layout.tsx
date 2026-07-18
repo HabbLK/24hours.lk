@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Syne } from "next/font/google";
 import Providers from "@/components/Providers";
+import FloatingChatBot from "@/components/FloatingChatBot";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -43,7 +44,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning className={`${inter.variable} ${syne.variable} font-sans antialiased text-ink bg-mist`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <FloatingChatBot />
+        </Providers>
       </body>
     </html>
   );

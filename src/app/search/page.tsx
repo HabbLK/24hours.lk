@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchClient from "@/components/SearchClient";
 import ScrollToTop from "@/components/ScrollToTop";
+import BannerSlot from "@/components/BannerSlot";
 import connectDB from "@/lib/db";
 import Category from "@/models/Category";
 
@@ -23,6 +24,9 @@ export default async function SearchPage() {
           }>
             <SearchClient />
           </Suspense>
+          <div className="mt-8">
+            <BannerSlot slot="search" />
+          </div>
         </div>
       </main>
       <Footer />

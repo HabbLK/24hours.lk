@@ -9,6 +9,7 @@ import StatsSection from "@/components/StatsSection";
 import NewsletterCTA from "@/components/NewsletterCTA";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import BannerSlot from "@/components/BannerSlot";
 import connectDB from "@/lib/db";
 import Service from "@/models/Service";
 import Category from "@/models/Category";
@@ -45,6 +46,7 @@ export default async function Home() {
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-12 sm:space-y-16 lg:space-y-20">
           <CategoryStrip categories={serializedCategories} />
+          <BannerSlot slot="homepage" />
           <TaskGuides guides={serializedGuides} />
           <FeaturedServices services={serializedServices} />
         </div>

@@ -12,14 +12,24 @@ import {
   Settings,
   Users,
   LogOut,
+  Award,
+  Image,
+  Ticket,
+  Wallet,
+  FileText,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const navItems = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { title: "Services", href: "/admin/services", icon: Layers },
+  { title: "Partner Tiers", href: "/admin/partners", icon: Award },
   { title: "Categories", href: "/admin/categories", icon: ListOrdered },
   { title: "Task Guides", href: "/admin/guides", icon: Map },
+  { title: "Banner Ads", href: "/admin/banners", icon: Image },
+  { title: "Referrals", href: "/admin/referrals", icon: FileText },
+  { title: "Points Ledger", href: "/admin/points", icon: Wallet },
+  { title: "Promo Codes", href: "/admin/promo-codes", icon: Ticket },
   { title: "Site Settings", href: "/admin/settings", icon: Settings },
   { title: "Admin Users", href: "/admin/users", icon: Users },
 ];

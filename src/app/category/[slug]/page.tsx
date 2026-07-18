@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import FeaturedServices from "@/components/FeaturedServices";
+import BannerSlot from "@/components/BannerSlot";
 import IconRenderer from "@/components/IconRenderer";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -23,7 +24,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const services = await Service.find({ category: category.slug, active: true }).sort({ sortOrder: 1, name: 1 }).lean();
+  const services = await Service.find({ category: category.slug, active: true }).lean();
+
+  const tierPriority: Record<string, number> = { featured: 0, verified: 1, basic: 2 };
+  services.sort((a: any, b: any) => {
+    const tierA = tierPriority[a.tier] ?? 2;
+    const tierB = tierPriority[b.tier] ?? 2;
+    if (tierA !== tierB) return tierA - tierB;
+    return (a.sortOrder || 0) - (b.sortOrder || 0) || a.name.localeCompare(b.name);
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
@@ -55,6 +64,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             </div>
           </div>
           
+          <BannerSlot slot="category" categorySlug={slug} />
+
           {/* Services Grid */}
           {services.length > 0 ? (
             <div className="animate-fade-in-up delay-200">

@@ -8,15 +8,21 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ req, token }) => {
-        // Only require authentication for /admin routes (except login)
-        if (req.nextUrl.pathname.startsWith("/admin") && !req.nextUrl.pathname.startsWith("/admin/login")) {
-          return token !== null;
+        const path = req.nextUrl.pathname;
+
+        if (path.startsWith("/admin") && !path.startsWith("/admin/login")) {
+          return token !== null && token?.role === "admin";
         }
+
+        if (path.startsWith("/api/admin") && !path.startsWith("/api/admin/auth")) {
+          return token !== null && token?.role === "admin";
+        }
+
         return true;
       },
     },
     pages: {
-      signIn: "/admin/login",
+      signIn: "/login",
     },
   }
 );
