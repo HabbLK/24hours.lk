@@ -2,8 +2,9 @@
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { User, Mail, Calendar, Edit, Loader2 } from "lucide-react";
+import { User, Mail, Calendar, Edit, Loader2, Wallet, Ticket, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import AccountAuthGate from "@/components/AccountAuthGate";
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
@@ -14,6 +15,7 @@ export default function AccountPage() {
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -30,40 +32,29 @@ export default function AccountPage() {
   }, [status]);
 
   if (status === "unauthenticated") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-mist px-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-brand-ink mb-4">Sign in to view your account</h1>
-          <Link
-            href="/login"
-            className="inline-block px-6 py-3 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg transition-colors"
-          >
-            Sign In
-          </Link>
-        </div>
-      </div>
-    );
+    return <AccountAuthGate message="Sign in to view your account" />;
   }
 
   const handleSave = async () => {
     setSaving(true);
     setMessage("");
+    setError("");
     try {
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone }),
       });
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setProfile(data);
         setEditing(false);
         setMessage("Profile updated successfully");
       } else {
-        setMessage("Failed to update profile");
+        setError(data.error || "Failed to update profile");
       }
     } catch {
-      setMessage("Failed to update profile");
+      setError("Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -87,15 +78,21 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen bg-brand-mist">
       <div className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-heading font-bold text-brand-ink mb-8">My Account</h1>
+        <h1 className="text-3xl font-heading font-bold text-brand-ink mb-8 animate-fade-in-up">My Account</h1>
 
         {message && (
-          <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+          <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 animate-fade-in">
             {message}
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        {error && (
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 animate-fade-in">
+            {error}
+          </div>
+        )}
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 animate-fade-in-up">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-brand-ink">Profile Information</h2>
             {!editing && (
@@ -111,7 +108,7 @@ export default function AccountPage() {
 
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-brand-red text-white flex items-center justify-center text-xl font-bold">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-red to-brand-red-dk text-white flex items-center justify-center text-xl font-bold ring-4 ring-brand-red/10 shrink-0">
                 {profile?.avatar ? (
                   <img src={profile.avatar} alt="" className="w-16 h-16 rounded-full object-cover" />
                 ) : (
@@ -190,18 +187,30 @@ export default function AccountPage() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link
             href="/account/points"
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
+            className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-xl hover:border-brand-red/20 hover:-translate-y-0.5 transition-all animate-fade-in-up delay-100"
           >
+            <div className="flex items-start justify-between">
+              <div className="w-11 h-11 bg-brand-red/10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Wallet className="w-5 h-5 text-brand-red" />
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-brand-red group-hover:translate-x-1 transition-all" />
+            </div>
             <h3 className="font-bold text-brand-ink mb-1">Points Wallet</h3>
             <p className="text-sm text-gray-600">View your balance and history</p>
           </Link>
           <Link
             href="/account/promo-codes"
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
+            className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-xl hover:border-brand-red/20 hover:-translate-y-0.5 transition-all animate-fade-in-up delay-200"
           >
+            <div className="flex items-start justify-between">
+              <div className="w-11 h-11 bg-brand-gold/10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Ticket className="w-5 h-5 text-brand-gold" />
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-brand-red group-hover:translate-x-1 transition-all" />
+            </div>
             <h3 className="font-bold text-brand-ink mb-1">Promo Codes</h3>
             <p className="text-sm text-gray-600">Manage your promo codes</p>
           </Link>

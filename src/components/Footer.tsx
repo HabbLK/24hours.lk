@@ -54,7 +54,7 @@ export default function Footer({ tagline }: { tagline?: string }) {
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 text-brand-red flex-shrink-0 mt-0.5" />
                 <a href="tel:+94112345678" className="hover:text-white transition-colors">
-                  +94 11 234 5678
+                  +94 70 1111 055
                 </a>
               </li>
               <li className="flex items-start gap-3">

@@ -73,17 +73,21 @@ export default function AuthModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 relative animate-fade-in-up">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl shadow-black/20 p-8 relative animate-fade-in-up border border-white/10">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="text-center mb-6">
-          <h2 className="text-xl font-bold text-brand-ink">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-red/10 rounded-2xl mb-3">
+            <Lock className="w-6 h-6 text-brand-red" />
+          </div>
+          <h2 className="text-xl font-heading font-bold text-brand-ink">
             {mode === "signup" ? "Create your account" : "Welcome back"}
           </h2>
           <p className="mt-1 text-sm text-brand-red font-medium">{message}</p>
@@ -138,7 +142,7 @@ export default function AuthModal({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-2.5 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-brand-red/25"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {mode === "signup" ? "Create Account" : "Sign In"}

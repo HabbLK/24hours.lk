@@ -37,27 +37,47 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { name, phone, avatar } = await request.json();
+    const body = await request.json();
+    const name = typeof body.name === "string" ? body.name.trim() : undefined;
+    const phone = typeof body.phone === "string" ? body.phone.trim() : undefined;
+    const avatar = typeof body.avatar === "string" ? body.avatar : undefined;
+
+    if (name !== undefined && name.length === 0) {
+      return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
+    }
 
     await connectDB();
 
     const updateData: any = {};
-    if (name !== undefined) updateData.name = name.trim();
-    if (phone !== undefined) updateData.phone = phone.trim();
+    if (name !== undefined) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone || undefined;
     if (avatar !== undefined) updateData.avatar = avatar;
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+    }
 
     const user = await User.findByIdAndUpdate(
       (session.user as any).id,
       { $set: updateData },
       { new: true }
-    ).select("-password -passwordResetToken -passwordResetExpires");
+    )
+      .select("-password -passwordResetToken -passwordResetExpires")
+      .lean();
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json(user);
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0] || "field";
+      return NextResponse.json(
+        { error: `This ${field} is already in use by another account` },
+        { status: 409 }
+      );
+    }
     return NextResponse.json(
       { error: "Failed to update profile" },
       { status: 500 }

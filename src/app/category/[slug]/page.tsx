@@ -15,11 +15,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   await connectDB();
   
-  const [category, allCategories] = await Promise.all([
-    Category.findOne({ slug, active: true }).lean(),
-    Category.find({ active: true }).sort({ sortOrder: 1 }).lean(),
-  ]);
-  
+  const category = await Category.findOne({ slug, active: true }).lean();
+
   if (!category) {
     notFound();
   }
@@ -36,7 +33,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
-      <Navbar categories={allCategories as any} />
+      <Navbar />
       <main className="flex-grow pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}

@@ -38,7 +38,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
-      <Navbar categories={serializedCategories} />
+      <Navbar />
       <main className="flex-grow">
         <Hero 
           headline={settingsMap.hero_headline || "What do you need to get done today?"}

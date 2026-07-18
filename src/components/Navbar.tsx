@@ -4,10 +4,20 @@ import Link from "next/link";
 import { Menu, X, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import IconRenderer from "./IconRenderer";
 import UserMenu from "./UserMenu";
 
-export default function Navbar({ categories }: { categories: any[] }) {
+const NAV_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Search", href: "/search" },
+  { label: "Guides", href: "/guides" },
+];
+
+const LEGAL_LINKS = [
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms & Conditions", href: "/terms" },
+];
+
+export default function Navbar() {
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -22,8 +32,8 @@ export default function Navbar({ categories }: { categories: any[] }) {
 
   return (
     <nav className={`fixed top-0 w-full z-40 transition-all duration-300 ${
-      scrolled 
-        ? "bg-brand-night/95 backdrop-blur-md shadow-lg shadow-black/10" 
+      scrolled
+        ? "bg-brand-night/95 backdrop-blur-md shadow-lg shadow-black/10"
         : "bg-brand-night"
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,21 +47,27 @@ export default function Navbar({ categories }: { categories: any[] }) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {categories?.slice(0, 5).map((category: any) => (
-              <Link 
-                key={category._id} 
-                href={`/category/${category.slug}`} 
-                className="text-sm font-medium text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-all relative group"
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-all"
               >
-                {category.name}
+                {link.label}
               </Link>
             ))}
-            <Link 
-              href="/search"
-              className="text-sm font-medium text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-all"
-            >
-              All Services
-            </Link>
+
+            <div className="w-px h-4 bg-gray-700 mx-1" />
+
+            {LEGAL_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-xs font-medium text-gray-500 hover:text-gray-300 px-2 py-2 rounded-lg hover:bg-white/5 transition-all"
+              >
+                {link.label}
+              </Link>
+            ))}
 
             <div className="w-px h-6 bg-gray-700 mx-2" />
 
@@ -95,18 +111,29 @@ export default function Navbar({ categories }: { categories: any[] }) {
         mobileMenuOpen ? "max-h-[80vh]" : "max-h-0"
       }`}>
         <div className="px-3 pt-2 pb-4 space-y-1 bg-brand-night/98 border-t border-gray-800 max-h-[calc(80vh-4rem)] overflow-y-auto">
-          {categories?.map((category: any) => (
-            <Link 
-              key={category._id} 
-              href={`/category/${category.slug}`}
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             >
-              {category.icon && <IconRenderer iconName={category.icon} className="w-5 h-5" style={{ color: category.color }} />}
-              <span>{category.name}</span>
+              <span>{link.label}</span>
             </Link>
           ))}
-          <Link 
+          <div className="flex items-center gap-4 px-4 py-2">
+            {LEGAL_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-medium text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <Link
             href="/search"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center justify-center gap-2 mt-2 px-4 py-3 bg-brand-red hover:bg-brand-red-dk text-white rounded-lg text-sm font-bold transition-colors"
