@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import connectDB from "@/lib/db";
 import TaskGuide from "@/models/TaskGuide";
-import Category from "@/models/Category";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -11,19 +10,16 @@ import { ExternalLink, ArrowLeft, CheckCircle2, Clock } from "lucide-react";
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   await connectDB();
-  
-  const [guide, categories] = await Promise.all([
-    TaskGuide.findOne({ slug, active: true }).lean(),
-    Category.find({ active: true }).sort({ sortOrder: 1 }).lean(),
-  ]);
-  
+
+  const guide = await TaskGuide.findOne({ slug, active: true }).lean();
+
   if (!guide) {
     notFound();
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
-      <Navbar categories={categories as any} />
+      <Navbar />
       <main className="flex-grow pt-24 pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}

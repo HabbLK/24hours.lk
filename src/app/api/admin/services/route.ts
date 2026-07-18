@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getAdminAuthOptions } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Service from "@/models/Service";
+import AuditLog from "@/models/AuditLog";
+
+const GOVERNMENT_CATEGORIES = ["government"];
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAdminAuthOptions());
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
@@ -18,11 +21,20 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAdminAuthOptions());
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const body = await request.json();
+
+    if (GOVERNMENT_CATEGORIES.includes(body.category)) {
+      body.tier = "basic";
+      body.tierStatus = "active";
+      body.billingCycle = null;
+      body.nextBillingDate = null;
+      body.badgeFlag = null;
+    }
+
     await connectDB();
     const newService = await Service.create(body);
     return NextResponse.json(newService, { status: 201 });

@@ -13,6 +13,11 @@ export interface IService extends Document {
   active: boolean;
   sortOrder: number;
   tags?: string[];
+  tier: "basic" | "verified" | "featured";
+  tierStatus: "active" | "expired" | "pending";
+  billingCycle: "monthly" | "annual" | null;
+  nextBillingDate: Date | null;
+  badgeFlag: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +41,11 @@ const ServiceSchema: Schema = new Schema(
     active: { type: Boolean, default: true },
     sortOrder: { type: Number, default: 0 },
     tags: [{ type: String }],
+    tier: { type: String, enum: ["basic", "verified", "featured"], default: "basic" },
+    tierStatus: { type: String, enum: ["active", "expired", "pending"], default: "active" },
+    billingCycle: { type: String, enum: ["monthly", "annual", null], default: null },
+    nextBillingDate: { type: Date, default: null },
+    badgeFlag: { type: String, default: null },
   },
   { timestamps: true }
 );

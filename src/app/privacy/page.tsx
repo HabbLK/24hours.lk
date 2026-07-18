@@ -2,21 +2,16 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import connectDB from "@/lib/db";
-import Category from "@/models/Category";
 
 export const metadata = {
   title: "Privacy Policy | 24hours.lk",
   description: "Privacy Policy for 24hours.lk",
 };
 
-export default async function PrivacyPage() {
-  await connectDB();
-  const categories = await Category.find({ active: true }).sort({ sortOrder: 1 }).lean();
-
+export default function PrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
-      <Navbar categories={categories as any} />
+      <Navbar />
       <main className="flex-grow pt-24 pb-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link href="/" className="inline-flex items-center text-sm font-medium text-brand-red mb-8 hover:text-brand-red-dk transition-colors">

@@ -1,6 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Syne } from "next/font/google";
 import Providers from "@/components/Providers";
+import FloatingChatBot from "@/components/FloatingChatBot";
+import InstallPrompt from "@/components/InstallPrompt";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -11,6 +14,21 @@ export const metadata: Metadata = {
   description: "24hours.lk is your one-stop destination for finding and accessing essential services across Sri Lanka. Search for government services, healthcare, transportation, and more - all in one place, 24/7.",
   keywords: ["Sri Lanka services", "government services", "online services", "service directory", "24hours.lk", "healthcare", "transportation", "utilities"],
   authors: [{ name: "HABB PVT LTD" }],
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "24hours.lk",
+  },
   openGraph: {
     title: "24hours.lk - Sri Lanka's Unified Service Hub",
     description: "Find and access any service in Sri Lanka - government, healthcare, transportation, and more. Available 24/7.",
@@ -30,6 +48,15 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F5F3EE" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F0F0F" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +65,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning className={`${inter.variable} ${syne.variable} font-sans antialiased text-ink bg-mist`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <FloatingChatBot />
+          <InstallPrompt />
+          <ServiceWorkerRegister />
+        </Providers>
       </body>
     </html>
   );

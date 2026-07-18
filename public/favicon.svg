@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!-- Background -->
+  <rect width="180" height="180" fill="#1A1A1A" rx="40"/>
+  
+  <!-- Gradient background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF2D47;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#D4A574;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" fill="url(#bgGradient)" rx="40"/>
+  
+  <!-- "24" text -->
+  <text x="90" y="120" font-family="Arial, sans-serif" font-size="100" font-weight="bold" text-anchor="middle" fill="white">
+    24
+  </text>
+  
+  <!-- Red accent dot -->
+  <circle cx="140" cy="40" r="12" fill="#EF2D47"/>
+</svg>
