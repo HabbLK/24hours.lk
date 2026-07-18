@@ -107,6 +107,33 @@ export const FLOWS: Record<string, FlowConfig> = {
       { key: "destination", question: "Which city or area do you want to stay in?", widget: "text" },
       { key: "checkin", question: "Check-in date?", widget: "date" },
       { key: "checkout", question: "Check-out date?", widget: "date" },
+      {
+        key: "rooms",
+        question: "How many rooms do you need?",
+        widget: "number",
+        min: 1,
+        max: 10,
+      },
+      {
+        key: "adults",
+        question: "How many adults in total?",
+        widget: "number",
+        min: 1,
+        max: 30,
+      },
+      {
+        key: "children",
+        question: "Any children? If so, how many? (enter 0 if none)",
+        widget: "number",
+        min: 0,
+        max: 10,
+      },
+      {
+        key: "childrenAges",
+        question: "What are their ages? (e.g. 8, 12)",
+        widget: "text",
+        showIf: (slots) => !!slots.children && Number(slots.children) > 0,
+      },
     ],
   },
   taxi: {
@@ -124,6 +151,16 @@ export const FLOWS: Record<string, FlowConfig> = {
     matchTags: ["doctor", "channeling"],
     slots: [
       { key: "specialty", question: "What kind of doctor or specialty do you need?", widget: "text" },
+      {
+        key: "hospital",
+        question: "Any preferred hospital? (or type 'any')",
+        widget: "text",
+      },
+      {
+        key: "doctorName",
+        question: "Looking for a specific doctor? (or type 'any')",
+        widget: "text",
+      },
       { key: "date", question: "Preferred appointment date?", widget: "date" },
     ],
   },
