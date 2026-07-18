@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function LoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
@@ -33,8 +32,8 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
-        router.push(callbackUrl);
-        router.refresh();
+        // Full reload to ensure session JWT is picked up by SessionProvider
+        window.location.href = callbackUrl;
       }
     } catch {
       setError("Something went wrong. Please try again.");

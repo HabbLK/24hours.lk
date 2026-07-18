@@ -7,18 +7,35 @@ export default function NewsletterCTA() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSubscribed(true);
-    setLoading(false);
-    setEmail("");
+    setError("");
 
-    setTimeout(() => setSubscribed(false), 3000);
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to subscribe");
+      }
+
+      setSubscribed(true);
+      setEmail("");
+      setTimeout(() => setSubscribed(false), 3000);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,9 +63,14 @@ export default function NewsletterCTA() {
           Get notified when we add new services and guides to help you navigate Sri Lanka.
         </p>
 
+        {error && (
+          <p className="text-sm text-red-400 mb-4 animate-fade-in">{error}</p>
+        )}
+
         <form onSubmit={handleSubmit} className="max-w-md mx-auto">
           <div className="flex flex-col sm:flex-row gap-3">
             <input
+              suppressHydrationWarning
               type="email"
               placeholder="Enter your email"
               value={email}

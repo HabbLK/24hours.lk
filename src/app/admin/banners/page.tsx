@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Plus, Loader2, Trash2, Eye, MousePointer } from "lucide-react";
+import { Plus, Loader2, Trash2, Eye, MousePointer, Play, Pause, Pencil, X, Check } from "lucide-react";
 
 const SLOT_LABELS: Record<string, string> = {
   homepage: "Homepage",
@@ -17,6 +17,7 @@ export default function AdminBannersPage() {
   const [banners, setBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
     imageUrl: "",
@@ -27,6 +28,7 @@ export default function AdminBannersPage() {
     endDate: "",
   });
   const [saving, setSaving] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/admin/login");
@@ -44,27 +46,98 @@ export default function AdminBannersPage() {
     }
   }, [status]);
 
+  const resetForm = () => {
+    setForm({ title: "", imageUrl: "", destinationUrl: "", slotType: "homepage", categorySlug: "", startDate: "", endDate: "" });
+    setEditingId(null);
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/banners", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          startDate: new Date(form.startDate),
-          endDate: new Date(form.endDate),
-        }),
-      });
-      if (res.ok) {
-        const banner = await res.json();
-        setBanners((prev) => [banner, ...prev]);
-        setShowForm(false);
-        setForm({ title: "", imageUrl: "", destinationUrl: "", slotType: "homepage", categorySlug: "", startDate: "", endDate: "" });
+      if (editingId) {
+        const res = await fetch(`/api/admin/banners/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...form,
+            startDate: new Date(form.startDate),
+            endDate: new Date(form.endDate),
+          }),
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          setBanners((prev) => prev.map((b) => (b._id === editingId ? updated : b)));
+          resetForm();
+          setShowForm(false);
+        }
+      } else {
+        const res = await fetch("/api/admin/banners", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...form,
+            startDate: new Date(form.startDate),
+            endDate: new Date(form.endDate),
+          }),
+        });
+        if (res.ok) {
+          const banner = await res.json();
+          setBanners((prev) => [banner, ...prev]);
+          resetForm();
+          setShowForm(false);
+        }
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleEdit = (banner: any) => {
+    setForm({
+      title: banner.title,
+      imageUrl: banner.imageUrl,
+      destinationUrl: banner.destinationUrl,
+      slotType: banner.slotType,
+      categorySlug: banner.categorySlug || "",
+      startDate: new Date(banner.startDate).toISOString().split("T")[0],
+      endDate: new Date(banner.endDate).toISOString().split("T")[0],
+    });
+    setEditingId(banner._id);
+    setShowForm(true);
+  };
+
+  const handlePublishNow = async (id: string) => {
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/banners/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "publish-now" }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setBanners((prev) => prev.map((b) => (b._id === id ? updated : b)));
+      }
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleToggleActive = async (id: string) => {
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/banners/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle-active" }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setBanners((prev) => prev.map((b) => (b._id === id ? updated : b)));
+      }
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -92,7 +165,7 @@ export default function AdminBannersPage() {
           <p className="text-sm text-gray-600 mt-1">Manage banner placements across the site</p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
           className="flex items-center gap-2 px-4 py-2 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg text-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -102,7 +175,7 @@ export default function AdminBannersPage() {
 
       {showForm && (
         <form onSubmit={handleCreate} className="bg-white rounded-xl border border-gray-100 p-6 mb-6">
-          <h3 className="font-bold text-brand-ink mb-4">Create Banner</h3>
+          <h3 className="font-bold text-brand-ink mb-4">{editingId ? "Edit Banner" : "Create Banner"}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
@@ -188,11 +261,11 @@ export default function AdminBannersPage() {
               className="px-4 py-2 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              Create Banner
+              {editingId ? "Update Banner" : "Create Banner"}
             </button>
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={() => { resetForm(); setShowForm(false); }}
               className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
             >
               Cancel
@@ -217,6 +290,8 @@ export default function AdminBannersPage() {
             {banners.map((banner) => {
               const isLive = banner.active && new Date(banner.startDate) <= now && new Date(banner.endDate) >= now;
               const isExpired = new Date(banner.endDate) < now;
+              const isScheduled = new Date(banner.startDate) > now;
+              const isBusy = actionLoading === banner._id;
               return (
                 <tr key={banner._id} className="border-b border-gray-50 hover:bg-gray-50/50">
                   <td className="px-6 py-4">
@@ -231,9 +306,12 @@ export default function AdminBannersPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                      isLive ? "bg-green-100 text-green-700" : isExpired ? "bg-gray-100 text-gray-500" : "bg-yellow-100 text-yellow-700"
+                      isLive ? "bg-green-100 text-green-700" :
+                      isExpired ? "bg-gray-100 text-gray-500" :
+                      isScheduled ? "bg-blue-100 text-blue-700" :
+                      "bg-yellow-100 text-yellow-700"
                     }`}>
-                      {isLive ? "Live" : isExpired ? "Expired" : "Scheduled"}
+                      {isLive ? "Live" : isExpired ? "Expired" : isScheduled ? "Scheduled" : "Paused"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-xs text-gray-500">
@@ -241,9 +319,46 @@ export default function AdminBannersPage() {
                     <span className="flex items-center gap-1"><MousePointer className="w-3 h-3" /> {banner.clicks}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <button onClick={() => handleDelete(banner._id)} className="text-red-500 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      {/* Publish Now — only for scheduled or expired banners */}
+                      {(isScheduled || isExpired) && (
+                        <button
+                          onClick={() => handlePublishNow(banner._id)}
+                          disabled={isBusy}
+                          title="Publish Now"
+                          className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          {isBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                        </button>
+                      )}
+                      {/* Toggle Active/Inactive */}
+                      <button
+                        onClick={() => handleToggleActive(banner._id)}
+                        disabled={isBusy}
+                        title={banner.active ? "Pause" : "Resume"}
+                        className={`p-1.5 rounded-lg transition-colors disabled:opacity-50 ${
+                          banner.active ? "text-amber-600 hover:bg-amber-50" : "text-green-600 hover:bg-green-50"
+                        }`}
+                      >
+                        {isBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : banner.active ? <Pause className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+                      </button>
+                      {/* Edit */}
+                      <button
+                        onClick={() => handleEdit(banner)}
+                        title="Edit"
+                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      {/* Delete */}
+                      <button
+                        onClick={() => handleDelete(banner._id)}
+                        title="Delete"
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

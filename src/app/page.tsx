@@ -40,7 +40,7 @@ export default async function Home() {
     <div className="min-h-screen flex flex-col bg-brand-mist">
       <Navbar />
       <main className="flex-grow">
-        <Hero 
+        <Hero
           headline={settingsMap.hero_headline || "What do you need to get done today?"}
           subtext={settingsMap.hero_subtext || "24hours.lk guides you to the right services, exactly when you need them. No signup required."}
         />

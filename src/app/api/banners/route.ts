@@ -26,16 +26,19 @@ export async function GET(request: Request) {
       query.categorySlug = category;
     }
 
-    const banner = await BannerAd.findOne(query).lean();
+    const banners = await BannerAd.find(query).sort({ createdAt: -1 }).lean();
 
-    if (!banner) {
-      return NextResponse.json(null);
+    if (banners.length === 0) {
+      return NextResponse.json([]);
     }
 
-    await BannerAd.findByIdAndUpdate(banner._id, { $inc: { impressions: 1 } });
+    await BannerAd.updateMany(
+      { _id: { $in: banners.map((b) => b._id) } },
+      { $inc: { impressions: 1 } }
+    );
 
-    return NextResponse.json(banner);
+    return NextResponse.json(banners);
   } catch (error) {
-    return NextResponse.json(null);
+    return NextResponse.json([]);
   }
 }

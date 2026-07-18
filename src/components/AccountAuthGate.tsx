@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Lock } from "lucide-react";
 
 export default function AccountAuthGate({ message }: { message: string }) {
+  const pathname = usePathname();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand-mist px-4">
       <div className="text-center bg-white rounded-2xl shadow-sm border border-gray-100 p-10 max-w-sm w-full animate-fade-in-up">
@@ -10,7 +15,7 @@ export default function AccountAuthGate({ message }: { message: string }) {
         </div>
         <h1 className="text-xl font-bold text-brand-ink mb-6">{message}</h1>
         <Link
-          href="/login"
+          href={`/login?callbackUrl=${encodeURIComponent(pathname)}`}
           className="inline-block w-full px-6 py-3 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg transition-all hover:shadow-lg hover:shadow-brand-red/25"
         >
           Sign In

@@ -55,10 +55,11 @@ export default function SignupPage() {
       });
 
       if (result?.error) {
-        router.push("/login");
+        setError("Account created but sign-in failed. Please go to login.");
+        // Redirect to login after a short delay so user can read the message
+        setTimeout(() => router.push("/login"), 2000);
       } else {
-        router.push("/");
-        router.refresh();
+        window.location.href = "/";
       }
     } catch {
       setError("Something went wrong. Please try again.");

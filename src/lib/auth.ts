@@ -54,6 +54,38 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    CredentialsProvider({
+      id: "admin-credentials",
+      name: "Admin Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Missing email or password");
+        }
+
+        await connectDB();
+
+        const admin = await AdminUser.findOne({ email: credentials.email }).exec();
+        if (!admin || !admin.password) {
+          throw new Error("Invalid email or password");
+        }
+
+        const isMatch = await bcrypt.compare(credentials.password, admin.password);
+        if (!isMatch) {
+          throw new Error("Invalid email or password");
+        }
+
+        return {
+          id: admin._id.toString(),
+          name: admin.name,
+          email: admin.email,
+          role: "admin",
+        };
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -114,7 +146,9 @@ export const authOptions: NextAuthOptions = {
 
 export function getAdminAuthOptions(): NextAuthOptions {
   return {
-    ...authOptions,
+    session: {
+      strategy: "jwt",
+    },
     providers: [
       CredentialsProvider({
         name: "Admin Credentials",
@@ -151,5 +185,22 @@ export function getAdminAuthOptions(): NextAuthOptions {
     pages: {
       signIn: "/admin/login",
     },
+    callbacks: {
+      async jwt({ token, user }) {
+        if (user) {
+          token.id = user.id;
+          token.role = (user as any).role || "admin";
+        }
+        return token;
+      },
+      async session({ session, token }) {
+        if (session.user) {
+          (session.user as any).id = token.id;
+          (session.user as any).role = token.role || "admin";
+        }
+        return session;
+      },
+    },
+    secret: process.env.NEXTAUTH_SECRET,
   };
 }

@@ -2,17 +2,36 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+
+const STAT_CARDS = [
+  { key: "services", label: "Total Services", hint: "View all services", href: "/admin/services" },
+  { key: "categories", label: "Total Categories", hint: "Manage categories", href: "/admin/categories" },
+  { key: "guides", label: "Task Guides", hint: "Create new guides", href: "/admin/guides" },
+  { key: "users", label: "Registered Users", hint: "View all users", href: "/admin/users" },
+  { key: "subscribers", label: "Newsletter Subscribers", hint: "View subscribers", href: "/admin/newsletter" },
+];
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [stats, setStats] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/admin/login");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/admin/stats")
+        .then((res) => res.json())
+        .then((data) => setStats(data))
+        .catch(() => setStats({}));
+    }
+  }, [status]);
 
   if (status === "loading") {
     return (
@@ -35,29 +54,21 @@ export default function AdminDashboard() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
         <p className="text-gray-600">Welcome back, {session.user?.name || session.user?.email}</p>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Placeholder for Stats */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <h3 className="text-gray-500 text-sm font-medium">Total Services</h3>
-          <p className="text-3xl font-bold mt-2 text-brand-red">-</p>
-          <p className="text-xs text-gray-400 mt-2">View all services</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <h3 className="text-gray-500 text-sm font-medium">Total Categories</h3>
-          <p className="text-3xl font-bold mt-2 text-brand-red">-</p>
-          <p className="text-xs text-gray-400 mt-2">Manage categories</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <h3 className="text-gray-500 text-sm font-medium">Task Guides</h3>
-          <p className="text-3xl font-bold mt-2 text-brand-red">-</p>
-          <p className="text-xs text-gray-400 mt-2">Create new guides</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <h3 className="text-gray-500 text-sm font-medium">Admin Users</h3>
-          <p className="text-3xl font-bold mt-2 text-brand-red">-</p>
-          <p className="text-xs text-gray-400 mt-2">Manage admins</p>
-        </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        {STAT_CARDS.map((card) => (
+          <a
+            key={card.key}
+            href={card.href}
+            className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+          >
+            <h3 className="text-gray-500 text-sm font-medium">{card.label}</h3>
+            <p className="text-3xl font-bold mt-2 text-brand-red">
+              {stats ? (stats[card.key] ?? 0) : <Loader2 className="w-6 h-6 animate-spin" />}
+            </p>
+            <p className="text-xs text-gray-400 mt-2">{card.hint}</p>
+          </a>
+        ))}
       </div>
 
       <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
