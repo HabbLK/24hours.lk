@@ -38,9 +38,7 @@ function StatCard({ icon, value, label, suffix = "", delay }: StatProps) {
     const stepDuration = duration / steps;
 
     let timerId: NodeJS.Timeout;
-    let timeoutId: NodeJS.Timeout;
-
-    timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       let current = 0;
       timerId = setInterval(() => {
         current += increment;

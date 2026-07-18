@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink } from "lucide-react";
 
 interface BannerSlotProps {
   slot: "homepage" | "category" | "search";

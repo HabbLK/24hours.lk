@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { ExternalLink, Star, Shield, Award } from "lucide-react";
+import { ExternalLink, Star, Shield } from "lucide-react";
 import IconRenderer from "./IconRenderer";
 import AuthModal from "./AuthModal";
 
