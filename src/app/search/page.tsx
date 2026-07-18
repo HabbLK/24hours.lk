@@ -3,16 +3,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchClient from "@/components/SearchClient";
 import ScrollToTop from "@/components/ScrollToTop";
-import connectDB from "@/lib/db";
-import Category from "@/models/Category";
+import BannerSlot from "@/components/BannerSlot";
 
-export default async function SearchPage() {
-  await connectDB();
-  const categories = await Category.find({ active: true }).sort({ sortOrder: 1 }).lean();
-
+export default function SearchPage() {
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
-      <Navbar categories={categories as any} />
+      <Navbar />
       <main className="flex-grow pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Suspense fallback={
@@ -23,6 +19,9 @@ export default async function SearchPage() {
           }>
             <SearchClient />
           </Suspense>
+          <div className="mt-8">
+            <BannerSlot slot="search" />
+          </div>
         </div>
       </main>
       <Footer />
