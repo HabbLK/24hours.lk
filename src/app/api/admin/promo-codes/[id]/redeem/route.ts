@@ -24,7 +24,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     await AuditLog.create({
       adminUserId: (session.user as any).id,
-      adminEmail: session.user.email || "unknown",
+      adminEmail: session.user?.email || "unknown",
       action: "redeem_promo_code",
       targetType: "promo_code",
       targetId: id,

@@ -38,7 +38,6 @@ export async function POST(request: Request) {
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       provider: "email",
-      emailVerified: null,
       role: "user",
     });
 

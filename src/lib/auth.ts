@@ -126,8 +126,8 @@ export const authOptions: NextAuthOptions = {
 
         const newUser = await User.create({
           name: user.name || "User",
-          email: user.email,
-          avatar: user.image,
+          email: user.email ?? undefined,
+          avatar: user.image ?? undefined,
           provider,
           providerId: account.providerAccountId,
           emailVerified: new Date(),

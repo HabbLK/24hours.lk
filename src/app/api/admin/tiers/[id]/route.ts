@@ -50,7 +50,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (Object.keys(changes).length > 0) {
       await AuditLog.create({
         adminUserId: (session.user as any).id,
-        adminEmail: session.user.email || "unknown",
+        adminEmail: session.user?.email || "unknown",
         action: "update_tier",
         targetType: "service",
         targetId: id,

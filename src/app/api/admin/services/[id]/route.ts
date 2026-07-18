@@ -41,7 +41,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (Object.keys(changes).length > 0) {
       await AuditLog.create({
         adminUserId: (session.user as any).id,
-        adminEmail: session.user.email || "unknown",
+        adminEmail: session.user?.email || "unknown",
         action: "update_service",
         targetType: "service",
         targetId: id,
@@ -66,7 +66,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     await AuditLog.create({
       adminUserId: (session.user as any).id,
-      adminEmail: session.user.email || "unknown",
+      adminEmail: session.user?.email || "unknown",
       action: "delete_service",
       targetType: "service",
       targetId: id,
