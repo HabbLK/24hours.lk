@@ -1,16 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RedirectBookingChat from "@/components/RedirectBookingChat";
-import connectDB from "@/lib/db";
-import Category from "@/models/Category";
 
-export default async function AssistantPage() {
-  await connectDB();
-  const categories = await Category.find({ active: true }).sort({ sortOrder: 1 }).lean();
-
+export default function AssistantPage() {
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
-      <Navbar categories={categories as any} />
+      <Navbar />
       <main className="flex-grow pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">

@@ -4,12 +4,19 @@ import { useState, useRef, useEffect } from "react";
 import { Bot } from "lucide-react";
 import { FLOWS, detectIntent, extractEntities, SlotDef } from "@/lib/flowConfigs";
 import { buildDeepLink } from "@/lib/deepLinks";
+import { matchTown } from "@/lib/matchTown";
+import { matchFromList } from "@/lib/matchList";
+import { SPECIALIZATIONS, HOSPITALS } from "@/lib/doctorData";
 
 interface Msg { id: string; role: "bot" | "user"; text: string; }
 interface Provider { _id: string; slug: string; name: string; externalUrl: string; icon?: string; }
 
 let idc = 1;
 const nid = () => `m${idc++}`;
+
+// Slot keys that represent a place name and should be run through
+// town fuzzy-matching.
+const TOWN_SLOT_KEYS = new Set(["origin", "destination"]);
 
 export default function RedirectBookingChat() {
   const [messages, setMessages] = useState<Msg[]>([
@@ -27,10 +34,8 @@ export default function RedirectBookingChat() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      return; // don't scroll on initial mount — nothing to catch up to yet
+      return;
     }
-    // block: "nearest" keeps the scroll confined to the chat's own
-    // overflow-y-auto container instead of dragging the whole page down
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, providers]);
 
@@ -50,8 +55,6 @@ export default function RedirectBookingChat() {
     return flow.slots[slotIndex] || null;
   }
 
-  // Finds the next slot to ask, skipping any already-filled slots and any
-  // whose showIf condition fails against what's been collected so far.
   function nextSlotIndex(slots_: SlotDef[], filled: Record<string, string>, from: number): number {
     for (let i = from; i < slots_.length; i++) {
       const slot = slots_[i];
@@ -62,7 +65,35 @@ export default function RedirectBookingChat() {
     return -1;
   }
 
-  // First message: detect intent + opportunistically extract entities
+  // Resolves a raw slot value against the right known list depending on
+  // the slot key — towns for origin/destination, specialization list for
+  // "specialty", hospital list for "hospital". "any"/"" pass through
+  // untouched (user explicitly didn't want to narrow that field).
+  function resolveIfNeeded(key: string, rawValue: string): { value: string; corrected: boolean } {
+    const trimmed = rawValue.trim();
+    if (trimmed.toLowerCase() === "any" || !trimmed) return { value: rawValue, corrected: false };
+
+    if (TOWN_SLOT_KEYS.has(key)) {
+      const match = matchTown(trimmed);
+      if (match) return { value: match.matched, corrected: match.matched.toLowerCase() !== trimmed.toLowerCase() };
+      return { value: rawValue, corrected: false };
+    }
+
+    if (key === "specialty") {
+      const match = matchFromList(trimmed, SPECIALIZATIONS);
+      if (match) return { value: match.matched, corrected: match.matched.toLowerCase() !== trimmed.toLowerCase() };
+      return { value: rawValue, corrected: false };
+    }
+
+    if (key === "hospital") {
+      const match = matchFromList(trimmed, HOSPITALS);
+      if (match) return { value: match.matched, corrected: match.matched.toLowerCase() !== trimmed.toLowerCase() };
+      return { value: rawValue, corrected: false };
+    }
+
+    return { value: rawValue, corrected: false };
+  }
+
   function handleInitialMessage(text: string) {
     userSay(text);
     const detected = detectIntent(text);
@@ -74,14 +105,23 @@ export default function RedirectBookingChat() {
     const entities = extractEntities(text);
     const flow = FLOWS[detected];
     const filled: Record<string, string> = {};
+    const corrections: string[] = [];
+
     for (const slot of flow.slots) {
-      if (entities[slot.key]) filled[slot.key] = entities[slot.key]!;
+      if (entities[slot.key]) {
+        const { value, corrected } = resolveIfNeeded(slot.key, entities[slot.key]!);
+        filled[slot.key] = value;
+        if (corrected) corrections.push(value);
+      }
     }
     setSlots(filled);
 
+    if (corrections.length) {
+      say(`Got it — ${corrections.join(", ")}`);
+    }
+
     const firstUnfilled = nextSlotIndex(flow.slots, filled, 0);
     if (firstUnfilled === -1) {
-      // Everything was already in the first message
       fetchProviders(detected, filled);
     } else {
       setSlotIndex(firstUnfilled);
@@ -89,14 +129,20 @@ export default function RedirectBookingChat() {
     }
   }
 
-  function handleSlotAnswer(value: string, displayText?: string) {
+  function handleSlotAnswer(rawValue: string, displayText?: string) {
     const flow = currentFlow();
     const slot = currentSlotDef();
     if (!flow || !slot) return;
 
-    userSay(displayText ?? value);
+    userSay(displayText ?? rawValue);
+
+    const { value, corrected } = resolveIfNeeded(slot.key, rawValue);
     const updated = { ...slots, [slot.key]: value };
     setSlots(updated);
+
+    if (corrected) {
+      say(`Got it — ${value}`);
+    }
 
     const next = nextSlotIndex(flow.slots, updated, slotIndex + 1);
     if (next !== -1) {
@@ -124,12 +170,14 @@ export default function RedirectBookingChat() {
   }
 
   async function handlePickProvider(provider: Provider) {
-    const link = buildDeepLink(provider.slug, provider.externalUrl, slots);
+    let fallbackReason: string | null = null;
+    const link = buildDeepLink(provider.slug, provider.externalUrl, slots, (reason) => {
+      fallbackReason = reason;
+    });
+
     userSay(`Continue with ${provider.name}`);
     say(`Opening ${provider.name} with your details. Complete the booking there.`);
 
-    // Log the intent — this is our only visibility since the actual
-    // booking happens off-site on the provider's own platform.
     fetch("/api/booking-intents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -139,8 +187,9 @@ export default function RedirectBookingChat() {
         serviceSlug: provider.slug,
         serviceName: provider.name,
         redirectUrl: link,
+        deepLinkFallbackReason: fallbackReason,
       }),
-    }).catch(() => {}); // best-effort logging, don't block the redirect on it
+    }).catch(() => {});
 
     window.open(link, "_blank", "noopener,noreferrer");
   }

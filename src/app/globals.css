@@ -209,19 +209,19 @@
   }
   
   .animate-fade-in {
-    animation: fade-in 0.6s ease-out;
+    animation: fade-in 0.6s ease-out both;
   }
   
   .animate-fade-in-up {
-    animation: fade-in-up 0.6s ease-out;
+    animation: fade-in-up 0.6s ease-out both;
   }
   
   .animate-fade-in-down {
-    animation: fade-in-down 0.6s ease-out;
+    animation: fade-in-down 0.6s ease-out both;
   }
   
   .animate-slide-in-left {
-    animation: slide-in-left 0.6s ease-out;
+    animation: slide-in-left 0.6s ease-out both;
   }
   
   .delay-100 {

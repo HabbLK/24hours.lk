@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" fill="none">
+  <!-- Soft background blobs -->
+  <circle cx="330" cy="230" r="220" fill="#D4A017" fill-opacity="0.10" />
+  <circle cx="190" cy="360" r="150" fill="#C0181C" fill-opacity="0.07" />
+
+  <!-- Ground shadow -->
+  <ellipse cx="300" cy="520" rx="190" ry="20" fill="#1A1A1A" fill-opacity="0.06" />
+
+  <!-- Tuk-tuk silhouette (background, right) -->
+  <g opacity="0.35">
+    <path d="M430 470c0-40 22-70 55-70h30c30 0 52 28 52 62v8h-137z" fill="#D4A017" fill-opacity="0.5"/>
+    <rect x="428" y="405" width="145" height="60" rx="14" fill="#D4A017" fill-opacity="0.55"/>
+    <rect x="448" y="378" width="95" height="34" rx="12" fill="#D4A017" fill-opacity="0.6"/>
+    <circle cx="452" cy="475" r="16" fill="#1A1A1A" fill-opacity="0.55"/>
+    <circle cx="558" cy="475" r="16" fill="#1A1A1A" fill-opacity="0.55"/>
+  </g>
+
+  <!-- Dotted route line -->
+  <path d="M70 480 C 140 460, 160 400, 130 350 S 90 260, 150 220" stroke="#C0181C" stroke-opacity="0.3" stroke-width="4" stroke-dasharray="2 14" stroke-linecap="round"/>
+  <circle cx="150" cy="220" r="8" fill="#C0181C" fill-opacity="0.5"/>
+
+  <!-- Cushion / seat -->
+  <ellipse cx="260" cy="486" rx="110" ry="26" fill="#1A1A1A"/>
+  <ellipse cx="260" cy="478" rx="110" ry="26" fill="#EF2D47"/>
+
+  <!-- Character legs -->
+  <path d="M205 430c0 30 10 48 18 54h30c-4-16-6-38-2-56z" fill="#1A1A1A"/>
+  <path d="M315 430c0 30-10 48-18 54h-30c4-16 6-38 2-56z" fill="#1A1A1A"/>
+
+  <!-- Character body -->
+  <rect x="205" y="330" width="110" height="120" rx="42" fill="#F5F3EE"/>
+  <rect x="205" y="330" width="110" height="70" rx="34" fill="#EF2D47"/>
+
+  <!-- Left arm to phone -->
+  <path d="M225 360c-18 10-28 30-24 55 3 18 16 28 30 26" stroke="#8B5E3C" stroke-width="20" stroke-linecap="round"/>
+  <!-- Right arm resting -->
+  <path d="M300 365c16 14 22 34 16 58" stroke="#8B5E3C" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- Head -->
+  <circle cx="260" cy="290" r="46" fill="#8B5E3C"/>
+  <path d="M214 282c0-30 22-54 46-54s46 24 46 54c-10-8-26-14-46-14s-36 6-46 14z" fill="#1A1A1A"/>
+  <circle cx="244" cy="292" r="4.5" fill="#1A1A1A"/>
+  <circle cx="276" cy="292" r="4.5" fill="#1A1A1A"/>
+  <path d="M246 308c6 6 20 6 26 0" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+  <!-- Phone -->
+  <rect x="150" y="368" width="54" height="92" rx="12" fill="#1A1A1A"/>
+  <rect x="157" y="380" width="40" height="60" rx="4" fill="#F5F3EE"/>
+  <path d="M167 410l9 9 18-18" stroke="#2FAE5C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Notification bubble -->
+  <g>
+    <rect x="90" y="300" width="150" height="54" rx="18" fill="white"/>
+    <circle cx="118" cy="327" r="14" fill="#EF2D47" fill-opacity="0.12"/>
+    <path d="M112 327l4 5 10-11" stroke="#EF2D47" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <rect x="142" y="317" width="80" height="8" rx="4" fill="#1A1A1A" fill-opacity="0.7"/>
+    <rect x="142" y="331" width="56" height="7" rx="3.5" fill="#1A1A1A" fill-opacity="0.35"/>
+  </g>
+
+  <!-- Sparkle accents -->
+  <path d="M470 190l6 16 16 6-16 6-6 16-6-16-16-6 16-6z" fill="#D4A017" fill-opacity="0.6"/>
+  <circle cx="90" cy="230" r="7" fill="#EF2D47" fill-opacity="0.4"/>
+</svg>
