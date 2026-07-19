@@ -11,6 +11,8 @@ export const metadata = {
   description: "Step-by-step guides to help you complete any task in Sri Lanka.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function GuidesPage() {
   await connectDB();
   const guides = await TaskGuide.find({ active: true }).sort({ createdAt: -1 }).lean();

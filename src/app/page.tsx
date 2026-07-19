@@ -16,6 +16,8 @@ import Category from "@/models/Category";
 import TaskGuide from "@/models/TaskGuide";
 import SiteSettings from "@/models/SiteSettings";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   await connectDB();
 
