@@ -21,15 +21,17 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const services = await Service.find({ category: category.slug, active: true }).lean();
+  const rawServices = await Service.find({ category: category.slug, active: true }).lean();
 
   const tierPriority: Record<string, number> = { featured: 0, verified: 1, basic: 2 };
-  services.sort((a: any, b: any) => {
+  rawServices.sort((a: any, b: any) => {
     const tierA = tierPriority[a.tier] ?? 2;
     const tierB = tierPriority[b.tier] ?? 2;
     if (tierA !== tierB) return tierA - tierB;
     return (a.sortOrder || 0) - (b.sortOrder || 0) || a.name.localeCompare(b.name);
   });
+
+  const services = JSON.parse(JSON.stringify(rawServices));
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
@@ -66,7 +68,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           {/* Services Grid */}
           {services.length > 0 ? (
             <div className="animate-fade-in-up delay-200">
-              <FeaturedServices services={services as any} />
+              <FeaturedServices services={services} />
             </div>
           ) : (
             <div className="text-center py-32 bg-white rounded-2xl border border-gray-200 shadow-sm animate-fade-in-up">
