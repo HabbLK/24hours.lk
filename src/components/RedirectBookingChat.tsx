@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Bot } from "lucide-react";
-import { FLOWS, detectIntent, extractEntities, SlotDef } from "@/lib/flowConfigs";
+import { FLOWS, detectIntent, extractEntities, validateSlotInput, SlotDef } from "@/lib/flowConfigs";
 import { buildDeepLink } from "@/lib/deepLinks";
 import { matchTown } from "@/lib/matchTown";
 import { matchFromList } from "@/lib/matchList";
@@ -14,8 +14,6 @@ interface Provider { _id: string; slug: string; name: string; externalUrl: strin
 let idc = 1;
 const nid = () => `m${idc++}`;
 
-// Slot keys that represent a place name and should be run through
-// town fuzzy-matching.
 const TOWN_SLOT_KEYS = new Set(["origin", "destination"]);
 
 export default function RedirectBookingChat() {
@@ -27,6 +25,9 @@ export default function RedirectBookingChat() {
   const [slots, setSlots] = useState<Record<string, string>>({});
   const [providers, setProviders] = useState<Provider[] | null>(null);
   const [loading, setLoading] = useState(false);
+  // Populated when detectIntent can't tell which flow the user meant
+  // (e.g. "appointments" -> DMT vs Doctor). Cleared once they pick one.
+  const [ambiguousOptions, setAmbiguousOptions] = useState<string[] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -65,10 +66,6 @@ export default function RedirectBookingChat() {
     return -1;
   }
 
-  // Resolves a raw slot value against the right known list depending on
-  // the slot key — towns for origin/destination, specialization list for
-  // "specialty", hospital list for "hospital". "any"/"" pass through
-  // untouched (user explicitly didn't want to narrow that field).
   function resolveIfNeeded(key: string, rawValue: string): { value: string; corrected: boolean } {
     const trimmed = rawValue.trim();
     if (trimmed.toLowerCase() === "any" || !trimmed) return { value: rawValue, corrected: false };
@@ -78,32 +75,27 @@ export default function RedirectBookingChat() {
       if (match) return { value: match.matched, corrected: match.matched.toLowerCase() !== trimmed.toLowerCase() };
       return { value: rawValue, corrected: false };
     }
-
     if (key === "specialty") {
       const match = matchFromList(trimmed, SPECIALIZATIONS);
       if (match) return { value: match.matched, corrected: match.matched.toLowerCase() !== trimmed.toLowerCase() };
       return { value: rawValue, corrected: false };
     }
-
     if (key === "hospital") {
       const match = matchFromList(trimmed, HOSPITALS);
       if (match) return { value: match.matched, corrected: match.matched.toLowerCase() !== trimmed.toLowerCase() };
       return { value: rawValue, corrected: false };
     }
-
     return { value: rawValue, corrected: false };
   }
 
-  function handleInitialMessage(text: string) {
-    userSay(text);
-    const detected = detectIntent(text);
-    if (!detected) {
-      say("I couldn't tell what you want to book. Try mentioning flight, bus, train, hotel, taxi, or doctor.");
-      return;
-    }
-    setFlowKey(detected);
-    const entities = extractEntities(text);
-    const flow = FLOWS[detected];
+  // Shared by both the direct-match path and the post-disambiguation path.
+  // `originalText` is only present on a direct match, so entity extraction
+  // (e.g. "to Chennai") only runs then — after picking from a disambiguation
+  // button there's no free text to extract from.
+  function startFlow(key: string, originalText?: string) {
+    setFlowKey(key);
+    const flow = FLOWS[key];
+    const entities = originalText ? extractEntities(originalText) : {};
     const filled: Record<string, string> = {};
     const corrections: string[] = [];
 
@@ -122,17 +114,48 @@ export default function RedirectBookingChat() {
 
     const firstUnfilled = nextSlotIndex(flow.slots, filled, 0);
     if (firstUnfilled === -1) {
-      fetchProviders(detected, filled);
+      fetchProviders(key, filled);
     } else {
       setSlotIndex(firstUnfilled);
       say(flow.slots[firstUnfilled].question);
     }
   }
 
+  function handleInitialMessage(text: string) {
+    userSay(text);
+    const detected = detectIntent(text);
+    if (!detected) {
+      say("I couldn't tell what you want to book. Try mentioning flight, bus, train, hotel, taxi, doctor, shopping, jobs, or NIC.");
+      return;
+    }
+    if (detected.type === "ambiguous") {
+      setAmbiguousOptions(detected.options);
+      say("Did you mean:");
+      return;
+    }
+    startFlow(detected.flowKey, text);
+  }
+
+  function handleAmbiguousPick(key: string) {
+    userSay(FLOWS[key].label);
+    setAmbiguousOptions(null);
+    startFlow(key);
+  }
+
   function handleSlotAnswer(rawValue: string, displayText?: string) {
     const flow = currentFlow();
     const slot = currentSlotDef();
     if (!flow || !slot) return;
+
+    // Validate before echoing the answer or advancing — invalid input just
+    // gets an inline error and re-asks the same question.
+    if (slot.widget === "number" || slot.widget === "date") {
+      const result = validateSlotInput(slot, rawValue, slots);
+      if (!result.valid) {
+        say(result.error!);
+        return;
+      }
+    }
 
     userSay(displayText ?? rawValue);
 
@@ -200,6 +223,7 @@ export default function RedirectBookingChat() {
     if (!value) return;
     if (inputRef.current) inputRef.current.value = "";
 
+    if (ambiguousOptions) return; // waiting on a button pick, ignore typed input
     if (!flowKey) {
       handleInitialMessage(value);
     } else {
@@ -208,7 +232,7 @@ export default function RedirectBookingChat() {
   }
 
   const slotDef = currentSlotDef();
-  const showInput = !providers && !loading;
+  const showInput = !providers && !loading && !ambiguousOptions;
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[600px] overflow-hidden">
@@ -241,6 +265,20 @@ export default function RedirectBookingChat() {
           </div>
         )}
 
+        {ambiguousOptions && (
+          <div className="flex flex-wrap gap-2">
+            {ambiguousOptions.map((key) => (
+              <button
+                key={key}
+                onClick={() => handleAmbiguousPick(key)}
+                className="bg-brand-mist rounded-xl px-4 py-2 font-medium hover:bg-gray-200 transition-colors text-sm"
+              >
+                {FLOWS[key].label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {providers && (
           <div className="space-y-2">
             {providers.map((p) => (
@@ -257,12 +295,12 @@ export default function RedirectBookingChat() {
         )}
 
         {!providers && !loading && slotDef?.widget === "select" && (
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2">
             {slotDef.options?.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleSlotAnswer(opt.value, opt.label)}
-                className="flex-1 bg-brand-mist rounded-xl py-3 font-medium hover:bg-gray-200 transition-colors"
+                className="bg-brand-mist rounded-xl px-4 py-2 font-medium hover:bg-gray-200 transition-colors text-sm"
               >
                 {opt.label}
               </button>
