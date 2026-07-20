@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcrypt";
+import { grantSignupBonusIfNeeded } from "@/lib/points";
 
 export async function POST(request: Request) {
   try {
@@ -40,6 +41,8 @@ export async function POST(request: Request) {
       provider: "email",
       role: "user",
     });
+
+    await grantSignupBonusIfNeeded(user._id.toString());
 
     return NextResponse.json(
       {

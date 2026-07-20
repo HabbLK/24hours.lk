@@ -6,6 +6,7 @@ import connectDB from "@/lib/db";
 import AdminUser from "@/models/AdminUser";
 import User from "@/models/User";
 import bcrypt from "bcrypt";
+import { grantSignupBonusIfNeeded } from "@/lib/points";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -133,6 +134,8 @@ export const authOptions: NextAuthOptions = {
           emailVerified: new Date(),
           role: "user",
         });
+
+        await grantSignupBonusIfNeeded(newUser._id.toString());
 
         user.id = newUser._id.toString();
         (user as any).role = "user";
