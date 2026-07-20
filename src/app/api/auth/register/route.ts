@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim();
     const trimmedName = name.trim();
 
-    await User.create({
+    const user = await User.create({
       name: trimmedName,
       email: normalizedEmail,
       password: hashedPassword,

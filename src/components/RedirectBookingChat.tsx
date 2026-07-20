@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { Bot } from "lucide-react";
 import { FLOWS, detectIntent, extractEntities, validateSlotInput, SlotDef } from "@/lib/flowConfigs";
 import { Send, ArrowRight, Loader2 } from "lucide-react";
-import { FLOWS, detectIntent, extractEntities, SlotDef } from "@/lib/flowConfigs";
 import { buildDeepLink } from "@/lib/deepLinks";
 import { matchTown } from "@/lib/matchTown";
 import { matchFromList } from "@/lib/matchList";
@@ -284,13 +283,11 @@ export default function RedirectBookingChat() {
         )}
 
         {!providers && !loading && slotDef?.widget === "select" && (
-          <div className="flex flex-wrap gap-2">
           <div className="flex gap-2">
             {slotDef.options?.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleSlotAnswer(opt.value, opt.label)}
-                className="bg-brand-mist rounded-xl px-4 py-2 font-medium hover:bg-gray-200 transition-colors text-sm"
                 className="flex-1 border border-gray-200 rounded-lg py-2.5 font-medium text-[13px] text-brand-ink hover:border-brand-red/30 hover:text-brand-red transition-colors"
               >
                 {opt.label}
