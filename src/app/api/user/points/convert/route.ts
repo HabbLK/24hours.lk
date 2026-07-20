@@ -4,7 +4,9 @@ import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import PointsLedger from "@/models/PointsLedger";
 import PromoCode from "@/models/PromoCode";
+import User from "@/models/User";
 import crypto from "crypto";
+import { sendPromoCodeEmail } from "@/lib/mail";
 
 const REDEMPTION_THRESHOLD = 500;
 const CODE_EXPIRY_DAYS = 30;
@@ -58,6 +60,11 @@ export async function POST() {
     await PromoCode.findByIdAndUpdate(promoCode._id, {
       pointsTransactionId: promoCode._id.toString(),
     });
+
+    const user = await User.findById(userId).lean();
+    if (user?.email) {
+      await sendPromoCodeEmail(user.email, user.name, promoCode.code, REDEMPTION_THRESHOLD, promoCode.expiresAt);
+    }
 
     return NextResponse.json({ code: promoCode.code, expiresAt: promoCode.expiresAt });
   } catch (error) {

@@ -74,11 +74,11 @@ export default function FloatingChatBot() {
     setMessages((prev) => [...prev, { role: "user", text }]);
     setInput("");
     const intent = detectIntent(text);
-    if (intent) {
+    if (intent?.type === "flow") {
       const flowMap: Record<string, string> = { flight: "flight,airline", bus: "bus", train: "train,railway", hotel: "hotel,accommodation", taxi: "taxi,ride", doctor: "doctor,channeling" };
-      const tags = flowMap[intent];
+      const tags = flowMap[intent.flowKey];
       if (tags) {
-        setMessages((prev) => [...prev, { role: "bot", text: `Looking up ${intent} services...` }]);
+        setMessages((prev) => [...prev, { role: "bot", text: `Looking up ${intent.flowKey} services...` }]);
         searchProviders(tags);
         return;
       }

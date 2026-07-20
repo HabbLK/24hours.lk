@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Shield, Star, Award, Search, Loader2, ExternalLink } from "lucide-react";
@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminPartnersPage() {
-  const { data: session, status } = useSession();
+  const { session, status } = useAdminSession();
   const router = useRouter();
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

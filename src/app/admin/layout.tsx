@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import {
   LayoutDashboard,
   Layers,
@@ -44,10 +44,19 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { session, status } = useAdminSession();
+
+  const isLoginPage = pathname === "/admin/login";
+  const unauthorized = !isLoginPage && (status === "unauthenticated" || (session && session.user.role !== "admin"));
+
+  useEffect(() => {
+    if (unauthorized) {
+      router.replace("/admin/login");
+    }
+  }, [unauthorized, router]);
 
   // Login page — no sidebar, just render children
-  if (pathname === "/admin/login") {
+  if (isLoginPage) {
     return <>{children}</>;
   }
 
@@ -60,11 +69,20 @@ export default function AdminLayout({
     );
   }
 
-  // Not authenticated or not admin — middleware handles redirect,
-  // but render nothing here as a safety net
-  if (!session || (session.user as any).role !== "admin") {
-    return null;
+  if (unauthorized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-red" />
+      </div>
+    );
   }
+
+  if (!session) return null;
+
+  const handleSignOut = async () => {
+    await fetch("/api/admin/auth/signout", { method: "POST" });
+    window.location.replace("/admin/login");
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -110,7 +128,7 @@ export default function AdminLayout({
             </div>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/admin/login" })}
+            onClick={handleSignOut}
             className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
           >
             <LogOut className="w-5 h-5" />
@@ -125,7 +143,7 @@ export default function AdminLayout({
           <span className="text-brand-red">24</span>hours Admin
         </Link>
         <button
-          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          onClick={handleSignOut}
           className="text-gray-500 hover:text-gray-700"
         >
           <LogOut className="w-5 h-5" />

@@ -6,10 +6,12 @@ export interface IUser extends Document {
   phone?: string;
   password?: string;
   avatar?: string;
-  provider: "email" | "phone" | "google" | "facebook";
+  provider: "email" | "phone" | "google";
   providerId?: string;
   emailVerified?: Date;
   phoneVerified?: Date;
+  emailOtp?: string;
+  emailOtpExpires?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
   role: "user" | "admin";
@@ -27,13 +29,15 @@ const UserSchema: Schema = new Schema(
     avatar: { type: String },
     provider: {
       type: String,
-      enum: ["email", "phone", "google", "facebook"],
+      enum: ["email", "phone", "google"],
       required: true,
       default: "email",
     },
     providerId: { type: String },
     emailVerified: { type: Date },
     phoneVerified: { type: Date },
+    emailOtp: { type: String },
+    emailOtpExpires: { type: Date },
     passwordResetToken: { type: String },
     passwordResetExpires: { type: Date },
     role: { type: String, enum: ["user", "admin"], default: "user" },

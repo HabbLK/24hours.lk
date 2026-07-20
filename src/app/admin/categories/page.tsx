@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Plus, Search, Loader2, Trash2, Pencil, X } from "lucide-react";
@@ -25,7 +25,7 @@ function slugify(value: string) {
 }
 
 export default function CategoriesPage() {
-  const { data: session, status } = useSession();
+  const { session, status } = useAdminSession();
   const router = useRouter();
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

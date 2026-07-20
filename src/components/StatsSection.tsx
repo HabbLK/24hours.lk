@@ -76,9 +76,9 @@ export default function StatsSection() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-          <StatCard icon={<Users className="w-6 h-6" />} value={50000} suffix="+" label="Happy users" delay={0} />
-          <StatCard icon={<Building2 className="w-6 h-6" />} value={500} suffix="+" label="Service providers" delay={100} />
-          <StatCard icon={<CheckCircle className="w-6 h-6" />} value={1000} suffix="+" label="Services listed" delay={200} />
+          <StatCard icon={<Users className="w-6 h-6" />} value={1000} suffix="+" label="Happy users" delay={0} />
+          <StatCard icon={<Building2 className="w-6 h-6" />} value={40} suffix="+" label="Service providers" delay={100} />
+          <StatCard icon={<CheckCircle className="w-6 h-6" />} value={30} suffix="+" label="Services listed" delay={200} />
           <StatCard icon={<TrendingUp className="w-6 h-6" />} value={99} suffix="%" label="Satisfaction" delay={300} />
         </div>
       </div>

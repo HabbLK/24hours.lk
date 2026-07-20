@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import crypto from "crypto";
+import { sendPasswordResetEmail, getAppUrl } from "@/lib/mail";
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +17,8 @@ export async function POST(request: Request) {
 
     await connectDB();
 
-    const user = await User.findOne({ email: email.toLowerCase(), provider: "email" });
+    const normalizedEmail = email.toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail, provider: "email" });
     if (!user) {
       return NextResponse.json(
         { message: "If an account exists with this email, a reset link has been sent" },
@@ -31,8 +33,11 @@ export async function POST(request: Request) {
     user.passwordResetExpires = resetExpires;
     await user.save();
 
+    const resetUrl = `${getAppUrl()}/reset-password?token=${resetToken}`;
+    await sendPasswordResetEmail(normalizedEmail, user.name, resetUrl);
+
     return NextResponse.json(
-      { message: "If an account exists with this email, a reset link has been sent", resetToken },
+      { message: "If an account exists with this email, a reset link has been sent" },
       { status: 200 }
     );
   } catch (error) {

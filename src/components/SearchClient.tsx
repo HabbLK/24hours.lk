@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import FeaturedServices from "@/components/FeaturedServices";
 import TaskGuides from "@/components/TaskGuides";
+import IconRenderer from "@/components/IconRenderer";
 import { Search as SearchIcon, AlertCircle } from "lucide-react";
 
 export default function SearchClient() {
@@ -15,6 +16,7 @@ export default function SearchClient() {
   const [query, setQuery] = useState(q);
   const [results, setResults] = useState<{ services: any[]; guides: any[] }>({ services: [], guides: [] });
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     if (q) {
@@ -26,6 +28,14 @@ export default function SearchClient() {
     } else {
       setLoading(false);
     }
+  }, [q]);
+
+  useEffect(() => {
+    if (q) return;
+    fetch("/api/categories")
+      .then(res => res.json())
+      .then(data => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
   }, [q]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -107,12 +117,26 @@ export default function SearchClient() {
               )}
             </div>
           ) : (
-            <div className="text-center py-20">
-              <div className="w-14 h-14 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <SearchIcon className="w-7 h-7 text-brand-red" />
+            <div>
+              <h2 className="text-xl font-heading font-bold text-brand-ink mb-1">Browse all categories</h2>
+              <p className="text-sm text-gray-500 mb-6">Or enter a keyword above to find something specific</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                {categories.map((category) => (
+                  <Link
+                    key={category._id}
+                    href={`/category/${category.slug}`}
+                    className="group flex flex-col items-center text-center gap-3 p-5 bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-md transition-all"
+                  >
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"
+                      style={{ backgroundColor: `${category.color || "#E4322B"}1A` }}
+                    >
+                      <IconRenderer iconName={category.icon} className="w-6 h-6" style={{ color: category.color || "#E4322B" }} />
+                    </div>
+                    <span className="text-sm font-bold text-brand-ink leading-tight">{category.name}</span>
+                  </Link>
+                ))}
               </div>
-              <h2 className="text-xl font-bold text-brand-ink mb-1">Start your search</h2>
-              <p className="text-sm text-gray-500">Enter a keyword or service name to find what you need</p>
             </div>
           )}
         </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Plus, Loader2, Trash2, Eye, MousePointer, Play, Pause, Pencil, X, Check } from "lucide-react";
@@ -12,7 +12,7 @@ const SLOT_LABELS: Record<string, string> = {
 };
 
 export default function AdminBannersPage() {
-  const { data: session, status } = useSession();
+  const { session, status } = useAdminSession();
   const router = useRouter();
   const [banners, setBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

@@ -21,12 +21,17 @@ export default function PromoCodesPage() {
   useEffect(() => {
     if (status === "authenticated") {
       fetch("/api/user/promo-codes")
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
         .then((data) => {
           setCodes(Array.isArray(data) ? data : []);
           setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch(() => {
+          setLoading(false);
+        });
     }
   }, [status]);
 
