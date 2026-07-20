@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import crypto from "crypto";
-import { sendPasswordResetEmail } from "@/lib/mail";
+import { sendPasswordResetEmail, getAppUrl } from "@/lib/mail";
 
 export async function POST(request: Request) {
   try {
@@ -33,8 +33,7 @@ export async function POST(request: Request) {
     user.passwordResetExpires = resetExpires;
     await user.save();
 
-    const appUrl = process.env.NEXTAUTH_URL || new URL(request.url).origin;
-    const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
+    const resetUrl = `${getAppUrl()}/reset-password?token=${resetToken}`;
     await sendPasswordResetEmail(normalizedEmail, user.name, resetUrl);
 
     return NextResponse.json(

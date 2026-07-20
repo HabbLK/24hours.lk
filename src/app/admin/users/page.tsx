@@ -42,7 +42,7 @@ export default function AdminUsersPage() {
     total: users.length,
     active: users.filter((u) => u.active).length,
     email: users.filter((u) => u.provider === "email").length,
-    oauth: users.filter((u) => u.provider === "google" || u.provider === "facebook").length,
+    oauth: users.filter((u) => u.provider === "google").length,
   };
 
   if (loading) {
@@ -115,7 +115,6 @@ export default function AdminUsersPage() {
             <option value="all">All Providers</option>
             <option value="email">Email</option>
             <option value="google">Google</option>
-            <option value="facebook">Facebook</option>
             <option value="phone">Phone</option>
           </select>
         </div>
@@ -160,7 +159,6 @@ export default function AdminUsersPage() {
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     user.provider === "google" ? "bg-red-50 text-red-700" :
-                    user.provider === "facebook" ? "bg-blue-50 text-blue-700" :
                     user.provider === "phone" ? "bg-green-50 text-green-700" :
                     "bg-gray-100 text-gray-700"
                   }`}>

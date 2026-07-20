@@ -6,7 +6,7 @@ export interface IUser extends Document {
   phone?: string;
   password?: string;
   avatar?: string;
-  provider: "email" | "phone" | "google" | "facebook";
+  provider: "email" | "phone" | "google";
   providerId?: string;
   emailVerified?: Date;
   phoneVerified?: Date;
@@ -29,7 +29,7 @@ const UserSchema: Schema = new Schema(
     avatar: { type: String },
     provider: {
       type: String,
-      enum: ["email", "phone", "google", "facebook"],
+      enum: ["email", "phone", "google"],
       required: true,
       default: "email",
     },

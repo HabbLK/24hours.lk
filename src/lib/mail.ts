@@ -5,6 +5,11 @@ const BRAND_RED_DK = "#B91C1C";
 const BRAND_INK = "#1A1A1A";
 const BRAND_ORANGE = "#F97316";
 
+/** Public site URL for links inside emails — always 24hours.lk, even in local dev where NEXTAUTH_URL points at localhost. */
+export function getAppUrl() {
+  return process.env.APP_URL || process.env.NEXTAUTH_URL || "https://24hours.lk";
+}
+
 let transporter: ReturnType<typeof nodemailer.createTransport> | null = null;
 
 function getTransporter() {
@@ -17,9 +22,20 @@ function getTransporter() {
     secure: port === 465,
     auth: {
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      // Gmail app passwords are shown with spaces for readability; strip them —
+      // Google accepts both, but some SMTP auth mechanisms don't like literal spaces.
+      pass: process.env.SMTP_PASS?.replace(/\s+/g, ""),
     },
   });
+
+  transporter.verify((err) => {
+    if (err) {
+      console.error("[mail] SMTP connection failed — check SMTP_HOST/PORT/USER/PASS in .env.local:", err);
+    } else {
+      console.log("[mail] SMTP connection verified, ready to send");
+    }
+  });
+
   return transporter;
 }
 
@@ -41,8 +57,12 @@ export async function sendMail({ to, subject, html, text }: SendMailInput): Prom
       text,
     });
     return true;
-  } catch (error) {
-    console.error(`[mail] Failed to send "${subject}" to ${to}:`, error);
+  } catch (error: any) {
+    console.error(`[mail] Failed to send "${subject}" to ${to}: ${error?.message || error}`, {
+      code: error?.code,
+      response: error?.response,
+      responseCode: error?.responseCode,
+    });
     return false;
   }
 }
@@ -170,7 +190,7 @@ export async function sendPointsEarnedEmail(to: string, name: string, points: nu
       ${balance !== undefined ? `<p style="margin:0;">Your new points balance is <strong style="color:${BRAND_INK};">${balance}</strong>.</p>` : ""}
     `,
     ctaLabel: "View Points Wallet",
-    ctaUrl: `${process.env.NEXTAUTH_URL || ""}/account/points`,
+    ctaUrl: `${getAppUrl()}/account/points`,
   });
 
   return sendMail({ to, subject: `You earned ${points} points on 24hours.lk`, html });
@@ -192,7 +212,7 @@ export async function sendPromoCodeEmail(to: string, name: string, code: string,
       <p style="margin:16px 0 0;font-size:13px;color:#9A9A9A;">Valid until ${expiresAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.</p>
     `,
     ctaLabel: "View Promo Codes",
-    ctaUrl: `${process.env.NEXTAUTH_URL || ""}/account/promo-codes`,
+    ctaUrl: `${getAppUrl()}/account/promo-codes`,
   });
 
   return sendMail({ to, subject: `Your 24hours.lk promo code: ${code}`, html });
