@@ -6,6 +6,7 @@ import TaskGuides from "@/components/TaskGuides";
 import HowItWorks from "@/components/HowItWorks";
 import PartnerChips from "@/components/PartnerChips";
 import StatsSection from "@/components/StatsSection";
+import Testimonials from "@/components/Testimonials";
 import NewsletterCTA from "@/components/NewsletterCTA";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -33,27 +34,29 @@ export default async function Home() {
     return acc;
   }, {} as Record<string, any>);
 
-  // Serialize MongoDB objects to plain objects
   const serializedCategories = JSON.parse(JSON.stringify(categories));
   const serializedServices = JSON.parse(JSON.stringify(services));
   const serializedGuides = JSON.parse(JSON.stringify(guides));
 
   return (
-    <div className="min-h-screen flex flex-col bg-brand-mist">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <main className="flex-grow">
         <Hero
           headline={settingsMap.hero_headline || "What do you need to get done today?"}
           subtext={settingsMap.hero_subtext || "24hours.lk guides you to the right services, exactly when you need them. No signup required."}
         />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-12 sm:space-y-16 lg:space-y-20">
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16 sm:space-y-20">
           <CategoryStrip categories={serializedCategories} />
           <BannerSlot slot="homepage" />
-          <TaskGuides guides={serializedGuides} />
           <FeaturedServices services={serializedServices} />
+          <TaskGuides guides={serializedGuides} />
         </div>
+
         <HowItWorks />
         <StatsSection />
+        <Testimonials />
         <PartnerChips />
         <NewsletterCTA />
       </main>
