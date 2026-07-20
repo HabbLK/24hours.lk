@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { getAdminAuthOptions } from "@/lib/auth";
+import { adminAuthOptions } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import SiteSettings from "@/models/SiteSettings";
 
 export async function GET() {
   try {
-    const session = await getServerSession(getAdminAuthOptions());
+    const session = await getServerSession(adminAuthOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
@@ -26,7 +26,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const session = await getServerSession(getAdminAuthOptions());
+    const session = await getServerSession(adminAuthOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }

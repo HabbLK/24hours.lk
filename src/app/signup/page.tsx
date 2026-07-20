@@ -56,10 +56,9 @@ export default function SignupPage() {
 
       if (result?.error) {
         setError("Account created but sign-in failed. Please go to login.");
-        // Redirect to login after a short delay so user can read the message
-        setTimeout(() => router.push("/login"), 2000);
+        setTimeout(() => window.location.replace("/login"), 2000);
       } else {
-        window.location.href = "/";
+        window.location.replace("/");
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -106,6 +105,7 @@ export default function SignupPage() {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="email"
               type="email"
               value={email}
@@ -124,6 +124,7 @@ export default function SignupPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
@@ -149,6 +150,7 @@ export default function SignupPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="confirmPassword"
               type={showPassword ? "text" : "password"}
               value={confirmPassword}

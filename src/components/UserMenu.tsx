@@ -82,9 +82,10 @@ export default function UserMenu() {
 
           <div className="border-t border-gray-100 mt-1 pt-1">
             <button
-              onClick={() => {
+              onClick={async () => {
                 setOpen(false);
-                signOut({ callbackUrl: "/" });
+                await signOut({ redirect: false });
+                window.location.replace("/");
               }}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 w-full transition-colors"
             >

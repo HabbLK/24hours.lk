@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Plus, Search, Loader2, Trash2, Pencil, X, GripVertical } from "lucide-react";
@@ -26,7 +26,7 @@ function slugify(value: string) {
 }
 
 export default function GuidesPage() {
-  const { data: session, status } = useSession();
+  const { session, status } = useAdminSession();
   const router = useRouter();
   const [guides, setGuides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

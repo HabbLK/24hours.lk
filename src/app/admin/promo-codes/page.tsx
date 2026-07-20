@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAdminSession } from "@/hooks/useAdminSession";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Loader2, Search, Check } from "lucide-react";
@@ -12,7 +12,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 };
 
 export default function AdminPromoCodesPage() {
-  const { data: session, status } = useSession();
+  const { session, status } = useAdminSession();
   const router = useRouter();
   const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

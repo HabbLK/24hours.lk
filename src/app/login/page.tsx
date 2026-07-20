@@ -32,8 +32,8 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
-        // Full reload to ensure session JWT is picked up by SessionProvider
-        window.location.href = callbackUrl;
+        // Full reload to ensure session JWT cookie is set before navigation
+        window.location.replace(callbackUrl);
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -62,6 +62,7 @@ export default function LoginPage() {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="email"
               type="email"
               value={email}
@@ -80,6 +81,7 @@ export default function LoginPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}

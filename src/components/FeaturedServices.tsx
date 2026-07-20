@@ -14,6 +14,7 @@ const TIER_CONFIG: Record<string, { label: string; className: string; icon: any 
 export default function FeaturedServices({ services }: { services: any[] }) {
   const { data: session } = useSession();
   const [authModal, setAuthModal] = useState<{ open: boolean; service: any }>({ open: false, service: null });
+  const [expanded, setExpanded] = useState(false);
 
   if (!services || services.length === 0) return null;
 
@@ -25,6 +26,9 @@ export default function FeaturedServices({ services }: { services: any[] }) {
     return (a.sortOrder || 0) - (b.sortOrder || 0) || a.name.localeCompare(b.name);
   });
 
+  const shown = expanded ? sorted : sorted.slice(0, 8);
+  const hasMore = sorted.length > 8;
+
   return (
     <section>
       <div className="flex justify-between items-end mb-6">
@@ -32,10 +36,18 @@ export default function FeaturedServices({ services }: { services: any[] }) {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-ink">Popular services</h2>
           <p className="text-sm text-gray-500 mt-1">Most accessed by our users</p>
         </div>
+        {hasMore && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex items-center gap-1.5 text-sm font-semibold text-brand-red hover:text-brand-red-dk transition-colors shrink-0"
+          >
+            {expanded ? "Show less" : `View all (${sorted.length})`}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {sorted.map((service) => {
+        {shown.map((service) => {
           const tierConfig = service.tier && service.tier !== "basic" ? TIER_CONFIG[service.tier] : null;
           const TierIcon = tierConfig?.icon;
           return (

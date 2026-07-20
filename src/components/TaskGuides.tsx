@@ -1,8 +1,16 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronRight } from "lucide-react";
 
 export default function TaskGuides({ guides }: { guides: any[] }) {
+  const [expanded, setExpanded] = useState(false);
+
   if (!guides || guides.length === 0) return null;
+
+  const shown = expanded ? guides : guides.slice(0, 3);
+  const hasMore = guides.length > 3;
 
   return (
     <section>
@@ -11,10 +19,18 @@ export default function TaskGuides({ guides }: { guides: any[] }) {
           <h2 className="text-2xl sm:text-3xl font-heading font-bold text-brand-ink">Step-by-step guides</h2>
           <p className="text-sm text-gray-500 mt-1">Detailed walkthroughs for any task</p>
         </div>
+        {hasMore && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex items-center gap-1.5 text-sm font-semibold text-brand-red hover:text-brand-red-dk transition-colors shrink-0"
+          >
+            {expanded ? "Show less" : `View all (${guides.length})`}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {guides.map((guide) => (
+        {shown.map((guide) => (
           <Link
             key={guide._id.toString()}
             href={`/guide/${guide.slug}`}

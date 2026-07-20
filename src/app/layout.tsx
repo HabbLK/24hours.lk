@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import Providers from "@/components/Providers";
 import FloatingChatBot from "@/components/FloatingChatBot";
-import InstallPrompt from "@/components/InstallPrompt";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -57,18 +58,19 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
       <body suppressHydrationWarning className={`${inter.variable} ${poppins.variable} font-sans antialiased text-ink bg-mist`}>
-        <Providers>
+        <Providers session={session}>
           {children}
           <FloatingChatBot />
-          <InstallPrompt />
           <ServiceWorkerRegister />
         </Providers>
       </body>
