@@ -48,18 +48,7 @@ export default function SignupPage() {
         return;
       }
 
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Account created but sign-in failed. Please go to login.");
-        setTimeout(() => window.location.replace("/login"), 2000);
-      } else {
-        window.location.replace("/");
-      }
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
