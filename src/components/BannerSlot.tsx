@@ -43,6 +43,9 @@ export default function BannerSlot({ slot, categorySlug }: BannerSlotProps) {
       onMouseLeave={() => setPaused(false)}
     >
       <div className="relative w-full aspect-[4/1] max-h-48">
+        <span className="absolute top-2 left-2 z-20 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full pointer-events-none">
+          Sponsored
+        </span>
         {banners.map((banner, idx) => (
           <a
             key={banner._id}
