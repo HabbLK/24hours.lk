@@ -1,3 +1,6 @@
+import { KAPRUKA_CATEGORIES } from "@/lib/kaprukaCategories";
+import { XPRESS_LOCATIONS } from "@/lib/jobsData";
+
 // Only providers with documented/known query params get a pre-filled deep
 // link. Everyone else falls back to their plain homepage — being honest
 // about this here avoids silently sending users to a broken URL.
@@ -165,7 +168,6 @@ const DEEP_LINK_TEMPLATES: Record<string, (slots: Record<string, string>) => str
   // "any hospital" — confirmed directly from a real search. doctor is left
   // blank when no specific doctor name is given. date uses "Month D, YYYY"
   // format, URL-encoded (spaces -> +, comma -> %2C).
-  // specialization code table is still being built — see DOC_LK_SPECIALIZATIONS.
   "doc-lk": (slots) => {
     const specCode = DOC_LK_SPECIALIZATIONS[(slots.specialty || "").toLowerCase()];
     if (!specCode) throw new Error(`Unknown Doc.lk specialization — no code mapping for: ${slots.specialty}`);
@@ -188,6 +190,45 @@ const DEEP_LINK_TEMPLATES: Record<string, (slots: Record<string, string>) => str
       `&hospital=${hospitalCode}` +
       `&specialization=${specCode}` +
       `&date=${encodeURIComponent(dateFormatted)}`
+    );
+  },
+
+  // Kapruka: category selections map to confirmed category URLs. If the
+  // user picked "Something else (search by keyword)" instead, we build a
+  // keyword search link using the srilanka_online_search.jsp pattern —
+  // confirmed for single-word terms (e.g. "plate", "pillow"); multi-word
+  // behavior is untested, so treat with a little caution until verified.
+  kapruka: (slots) => {
+    if (slots.category === "other") {
+      const term = (slots.item || "").trim().toLowerCase();
+      if (!term) throw new Error("No Kapruka search keyword provided");
+      const encoded = encodeURIComponent(term);
+      return `https://www.kapruka.com/srilanka_online_search.jsp?d=${encoded}#${encoded}`;
+    }
+    const url = KAPRUKA_CATEGORIES[slots.category || ""];
+    if (!url) throw new Error(`Unknown Kapruka category: ${slots.category}`);
+    return url;
+  },
+
+  // NIC / Department for Registration of Persons — language selection only.
+  // Confirmed URL pattern: drp.gov.lk/{lang}/home.php for en/si/ta.
+  nic: (slots) => {
+    const lang = slots.language || "en";
+    return `https://drp.gov.lk/${lang}/home.php`;
+  },
+
+  // Xpress Jobs — confirmed against their own generated search URL.
+  // Locations/Sectors only added when a known mapping exists; keyword
+  // always included even if empty (matches their own default behavior).
+  "xpress-jobs": (slots) => {
+    const keyword = slots.jobTitle || "";
+    const locId = slots.jobLocation && slots.jobLocation.toLowerCase() !== "any"
+      ? XPRESS_LOCATIONS[slots.jobLocation.toLowerCase()]
+      : null;
+
+    return (
+      `https://xpress.jobs/jobs?page=1&KeyWord=${encodeURIComponent(keyword)}` +
+      (locId ? `&Locations=${locId}` : "")
     );
   },
 };
@@ -259,7 +300,6 @@ const AIRPORT_IATA_CODES: Record<string, string> = {
   istanbul: "IST",
 };
 
-
 // eChannelling specialization -> specialization_code. Only Cardiologist
 // confirmed so far — extend by manually searching other specialties on
 // echannelling.com and reading the resulting URL.
@@ -274,9 +314,6 @@ const ECHANNELLING_HOSPITALS: Record<string, string> = {
   // e.g. "asiri central": "H03", // <- unconfirmed, verify before adding
 };
 
-// Doc.lk specialization -> specialization code. STILL NEEDS THE FIRST
-// ENTRY — we know "4" is a valid code from a real search, but not which
-// specialty it maps to. Fill this in once confirmed.
 // Doc.lk specialization name -> code. Confirmed from real searches.
 const DOC_LK_SPECIALIZATIONS: Record<string, string> = {
   cardiologist: "4",

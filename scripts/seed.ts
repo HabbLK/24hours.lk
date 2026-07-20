@@ -4,7 +4,6 @@ import * as dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
 
-// Since we run this standalone, we define simple schemas here to avoid import issues
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -73,7 +72,6 @@ async function seed() {
     await mongoose.connect(MONGODB_URI as string);
     console.log("Connected to MongoDB");
 
-    // Clear existing data
     await Category.deleteMany({});
     await Service.deleteMany({});
     await TaskGuide.deleteMany({});
@@ -81,7 +79,6 @@ async function seed() {
     await AdminUser.deleteMany({});
     console.log("Cleared existing data");
 
-    // 1. Seed Admin User
     const adminPassword = process.env.ADMIN_PASSWORD || "password123";
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
     await AdminUser.create({
@@ -91,7 +88,6 @@ async function seed() {
     });
     console.log("Admin user created");
 
-    // 2. Seed Categories
     const categoriesData = [
       { name: "Transport", slug: "transport", icon: "Bus", color: "#4F46E5", sortOrder: 1, active: true },
       { name: "Hotels & Stays", slug: "hotels-stays", icon: "Hotel", color: "#10B981", sortOrder: 2, active: true },
@@ -107,27 +103,20 @@ async function seed() {
     await Category.insertMany(categoriesData);
     console.log("Categories seeded");
 
-    // 3. Seed Services
     const servicesData = [
       // Transport
-      // NOTE: SLTB below has NO `secondaryUrls` field. Your live DB currently has
-      // Magiya/BusSeat nested inside SLTB's secondaryUrls from an older seed run —
-      // that goes away once this file is run, since Magiya.lk and BusSeat.lk are
-      // now separate top-level services below (tagged "bus" so they show up
-      // alongside SLTB in bus search results).
       { name: "Bus Tickets (SLTB)", slug: "bus-tickets-sltb", icon: "🚌", category: "transport", description: "Official SLTB bus booking platform", externalUrl: "https://sltb.eseat.lk", featured: true, tags: ["bus", "transport", "sltb", "intercity"] },
       { name: "PickMe Taxi", slug: "pickme-taxi", icon: "🚕", category: "transport", description: "Local ride-hailing app", externalUrl: "https://pickme.lk", featured: true, tags: ["taxi", "tuk", "ride"] },
-      { name: "Uber Sri Lanka", slug: "uber-sri-lanka", icon: "🚗", category: "transport", description: "Global ride-hailing service", externalUrl: "https://uber.com", tags: ["taxi", "ride"] },
-      { name: "Airport Taxi", slug: "airport-taxi", icon: "✈️", category: "transport", description: "Reliable airport transfers", externalUrl: "https://aerotaxi.lk", tags: ["airport", "transfer", "taxi"] },
-
-      // NEW: these 4 flight services are NOT in your live DB yet — missing entirely
+      // Updated: point straight at the city-availability page you shared,
+      // rather than the generic uber.com homepage.
+      { name: "Uber Sri Lanka", slug: "uber-sri-lanka", icon: "🚗", category: "transport", description: "Global ride-hailing service", externalUrl: "https://www.uber.com/global/en/r/sri-lanka/cities/", tags: ["taxi", "ride"] },
       { name: "SriLankan Airlines", slug: "srilankan-airlines", icon: "✈️", category: "transport", description: "National carrier — domestic and international flights", externalUrl: "https://www.srilankan.com", featured: true, tags: ["flight", "airline", "transport"] },
       { name: "FitsAir", slug: "fitsair", icon: "✈️", category: "transport", description: "Low-cost carrier, domestic and regional routes", externalUrl: "https://www.fitsair.com", tags: ["flight", "airline"] },
       { name: "Emirates", slug: "emirates", icon: "✈️", category: "transport", description: "International flights via Dubai", externalUrl: "https://www.emirates.com", tags: ["flight", "airline"] },
       { name: "Qatar Airways", slug: "qatar-airways", icon: "✈️", category: "transport", description: "International flights via Doha", externalUrl: "https://www.qatarairways.com", tags: ["flight", "airline"] },
-      { name: "Sri Lanka Railways (Seat Reservation)", slug: "slr-seat-reservation", icon: "🚆", category: "transport", description: "Official government train seat booking platform", externalUrl: "https://seatreservation.railway.gov.lk", featured: true, tags: ["train", "railway"], },
-      // NEW: these 3 bus services are NOT in your live DB yet — this is the fix
-      // for the "only 1 bus option" bug you reported
+      // Updated: point at the actual seat-booking path you found, rather
+      // than the site root.
+      { name: "Sri Lanka Railways (Seat Reservation)", slug: "slr-seat-reservation", icon: "🚆", category: "transport", description: "Official government train seat booking platform", externalUrl: "https://seatreservation.railway.gov.lk/mtktwebslr/", featured: true, tags: ["train", "railway"] },
       { name: "BusSeat.lk", slug: "busseat-lk", icon: "🚌", category: "transport", description: "Private intercity bus seat booking platform", externalUrl: "https://busseat.lk/", tags: ["bus", "transport", "private", "intercity"] },
       { name: "Bus.lk", slug: "bus-lk", icon: "🚌", category: "transport", description: "Private intercity bus booking platform", externalUrl: "https://bus.lk/", tags: ["bus", "transport", "private", "intercity"] },
       { name: "Magiya.lk", slug: "magiya-lk", icon: "🚌", category: "transport", description: "Private intercity bus booking platform", externalUrl: "https://magiya.lk/", tags: ["bus", "transport", "private", "intercity"] },
@@ -144,34 +133,47 @@ async function seed() {
 
       // Health
       { name: "eChannelling", slug: "echannelling", icon: "🩺", category: "health-medical", description: "Channel a doctor easily", externalUrl: "https://www.echannelling.com", featured: true, tags: ["doctor", "hospital", "channeling"] },
-      { name: "DL Medical (echannelling)", slug: "dl-medical", icon: "👁️", category: "health-medical", description: "Book driving licence medical test", externalUrl: "https://www.echannelling.com/driving-license-medical", tags: ["medical", "driving", "licence"] },
+      { name: "DL Medical (echannelling)", slug: "dl-medical", icon: "👁️", category: "health-medical", description: "Book driving licence medical test", externalUrl: "https://www.echannelling.com/driving-license-medical", tags: ["medical"] },    
       { name: "1990 Ambulance", slug: "1990-ambulance", icon: "🚑", category: "health-medical", description: "Suwaseriya Emergency Ambulance", externalUrl: "tel:1990", featured: true, tags: ["emergency", "ambulance"] },
       { name: "Osu Sala", slug: "osu-sala", icon: "💊", category: "health-medical", description: "Government Pharmacy locator", externalUrl: "https://www.nmra.gov.lk", tags: ["pharmacy", "medicine"] },
       { name: "Doc.lk", slug: "doc-lk", icon: "🩺", category: "health-medical", description: "Search and book doctors across Sri Lanka", externalUrl: "https://www.doc.lk", featured: true, tags: ["doctor", "hospital", "channeling"] },
       { name: "Asiri Health", slug: "asiri-health", icon: "🏥", category: "health-medical", description: "Book appointments across Asiri hospitals", externalUrl: "https://asirihealth.com/doctor-appointment", tags: ["doctor", "hospital", "channeling"] },
       { name: "Durdans Hospital", slug: "durdans", icon: "🏥", category: "health-medical", description: "Book a doctor appointment at Durdans", externalUrl: "https://www.durdans.com/appointments/search.php", tags: ["doctor", "hospital", "channeling"] },
       { name: "Nine Wells Hospital", slug: "ninewells", icon: "🏥", category: "health-medical", description: "Book a doctor appointment at Nine Wells", externalUrl: "https://www.ninewellshospital.lk/appointment-booking/", tags: ["doctor", "hospital", "channeling"] },
+
       // Government
-      { name: "Department of Motor Traffic", slug: "dmt", icon: "🚗", category: "government", description: "Driving licences and vehicle registration", externalUrl: "https://www.motortraffic.gov.lk", featured: true, tags: ["dmt", "licence", "vehicle"] },
-      { name: "Department of Immigration", slug: "immigration", icon: "🛂", category: "government", description: "Passports and visas", externalUrl: "https://www.immigration.gov.lk", tags: ["passport", "visa"] },
-      { name: "NIDOA (NIC)", slug: "nic", icon: "🪪", category: "government", description: "National Identity Card services", externalUrl: "https://www.ec.gov.lk", tags: ["nic", "id"] },
+      { name: "Department of Motor Traffic", slug: "dmt", icon: "🚗", category: "government", description: "Driving licences and vehicle registration", externalUrl: "https://www.gov.lk/services/erl/es/erl/view/index.action", featured: true, tags: ["dmt", "licence", "vehicle", "driving"] },
+      // New: DMT online appointment booking and revenue licence renewal
+      { name: "DMT Appointment Booking", slug: "dmt-appointments", icon: "📅", category: "government", description: "Book a Department of Motor Traffic appointment online", externalUrl: "https://dmtappointments.dmt.gov.lk/", tags: ["dmt", "licence", "appointment", "driving"] },
+      { name: "Vehicle Revenue Licence", slug: "vehicle-revenue-licence", icon: "🧾", category: "government", description: "Renew your vehicle revenue licence online", externalUrl: "https://www.gov.lk/services/erl/es/erl/view/index.action", tags: ["dmt", "licence", "revenue"] },
+      // Updated: point at the specific passports/visas landing page you shared.
+      { name: "Department of Immigration", slug: "immigration", icon: "🛂", category: "government", description: "Passports and visas", externalUrl: "https://www.immigration.gov.lk/index_e.php", tags: ["passport", "visa"] },
+      // Fixed: this previously pointed to the Election Commission
+      // (ec.gov.lk), which is the wrong agency entirely for NIC services.
+      // Now correctly points to the Department for Registration of Persons.
+      { name: "NIC — Department for Registration of Persons", slug: "nic", icon: "🪪", category: "government", description: "Apply for or manage your National Identity Card", externalUrl: "https://drp.gov.lk/en/home.php", tags: ["nic", "id"] },
 
       // Delivery
-      { name: "ParcelBuddy", slug: "parcelbuddy", icon: "📦", category: "delivery", description: "P2P parcel delivery", externalUrl: "https://parcelbuddy.lk", tags: ["delivery", "p2p"] },
+      { name: "ParcelBuddy", slug: "parcelbuddy", icon: "📦", category: "delivery", description: "P2P parcel delivery", externalUrl: "https://www.parcelbuddy.lk/send", secondaryUrls: [{ label: "Track/Find Parcel", url: "https://www.parcelbuddy.lk/parcels" }], tags: ["delivery", "p2p"] },
       { name: "Kapruka", slug: "kapruka", icon: "🎁", category: "delivery", description: "Online shopping and delivery", externalUrl: "https://www.kapruka.com", featured: true, tags: ["gift", "delivery", "shopping"] },
 
       // Food
       { name: "PickMe Food", slug: "pickme-food", icon: "🍔", category: "food", description: "Food delivery from local restaurants", externalUrl: "https://pickme.lk/food", featured: true, tags: ["food", "delivery"] },
       { name: "Uber Eats LK", slug: "uber-eats", icon: "🍕", category: "food", description: "Global food delivery app", externalUrl: "https://www.ubereats.com", tags: ["food", "delivery"] },
+      // New: table booking / restaurant reservation services
+      { name: "MyTable.lk", slug: "mytable", icon: "🍽️", category: "food", description: "Reserve a table at restaurants across Sri Lanka", externalUrl: "https://mytable.lk/venues", tags: ["restaurant", "reservation", "dining"] },
+      { name: "EatApp", slug: "eatapp", icon: "🍽️", category: "food", description: "Book a table online at partner restaurants", externalUrl: "https://eatapp.co/sri-lanka", tags: ["restaurant", "reservation", "dining"] },
+      { name: "Galle Face Hotel Dining", slug: "galle-face-dining", icon: "🍽️", category: "food", description: "Reserve a table at Galle Face Hotel's restaurants", externalUrl: "https://gallefacehotel.com/dining/", tags: ["restaurant", "reservation", "dining"] },
 
       // Jobs
       { name: "TopJobs Sri Lanka", slug: "topjobs", icon: "💼", category: "jobs", description: "Local job portal", externalUrl: "https://www.topjobs.lk", featured: true, tags: ["job", "career", "work"] },
+      // New: Xpress Jobs
+      { name: "Xpress Jobs", slug: "xpress-jobs", icon: "💼", category: "jobs", description: "Search job vacancies across Sri Lanka", externalUrl: "https://xpress.jobs", featured: true, tags: ["job", "career", "work"] },
       { name: "Fiverr", slug: "fiverr", icon: "💻", category: "jobs", description: "Global freelance marketplace", externalUrl: "https://www.fiverr.com", tags: ["freelance", "gig"] },
     ];
     await Service.insertMany(servicesData);
     console.log("Services seeded");
 
-    // 4. Seed Task Guides
     const taskGuidesData = [
       {
         title: "Renew Driving Licence",
@@ -206,7 +208,6 @@ async function seed() {
     await TaskGuide.insertMany(taskGuidesData);
     console.log("Task Guides seeded");
 
-    // 5. Seed Site Settings
     const settingsData = [
       { key: "hero_headline", value: "What do you need to get done today?" },
       { key: "hero_subtext", value: "24hours.lk guides you to the right services, exactly when you need them. No signup required." },

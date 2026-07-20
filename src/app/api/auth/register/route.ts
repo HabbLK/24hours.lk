@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcrypt";
+import { grantSignupBonusIfNeeded } from "@/lib/points";
 import crypto from "crypto";
 import { sendOtpEmail } from "@/lib/mail";
 
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
       emailOtpExpires: otpExpires,
     });
 
+    await grantSignupBonusIfNeeded(user._id.toString());
     await sendOtpEmail(normalizedEmail, trimmedName, otp);
 
     return NextResponse.json(
