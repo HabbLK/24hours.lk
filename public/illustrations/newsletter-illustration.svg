@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" fill="none">
+  <!-- Soft background blobs -->
+  <circle cx="300" cy="210" r="230" fill="#D4A017" fill-opacity="0.12" />
+  <circle cx="420" cy="410" r="150" fill="#C0181C" fill-opacity="0.08" />
+
+  <!-- Ground shadow -->
+  <ellipse cx="300" cy="530" rx="170" ry="18" fill="#F5F3EE" fill-opacity="0.5" />
+
+  <!-- Dotted orbit ring -->
+  <ellipse cx="300" cy="290" rx="205" ry="205" stroke="#D4A017" stroke-opacity="0.25" stroke-width="3" stroke-dasharray="2 14" />
+
+  <!-- Bell (left) -->
+  <g transform="translate(112 190)">
+    <path d="M40 0c-24 0-40 20-40 46 0 26-6 40-16 52h112c-10-12-16-26-16-52 0-26-16-46-40-46z" fill="#EF2D47" fill-opacity="0.85"/>
+    <rect x="30" y="-12" width="20" height="16" rx="8" fill="#EF2D47" fill-opacity="0.85"/>
+    <path d="M8 98c6 12 20 20 32 20s26-8 32-20z" fill="#1A1A1A" fill-opacity="0.7"/>
+    <circle cx="86" cy="10" r="13" fill="#2FAE5C"/>
+    <path d="M80 10l4 4 8-8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Envelope flying toward phone (top right) -->
+  <g transform="translate(360 100) rotate(-8)">
+    <rect x="0" y="0" width="128" height="86" rx="10" fill="white"/>
+    <rect x="0" y="0" width="128" height="86" rx="10" stroke="#D4A017" stroke-opacity="0.4" stroke-width="3"/>
+    <path d="M4 8l60 44 60-44" stroke="#EF2D47" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="112" cy="14" r="12" fill="#D4A017"/>
+    <path d="M107 14l3.5 3.5 8-8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  <!-- motion lines behind envelope -->
+  <path d="M330 150c14-4 26-10 36-18M336 172c16-2 30-8 42-16" stroke="#EF2D47" stroke-opacity="0.35" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Cushion / seat shadow the character stands on -->
+  <ellipse cx="270" cy="500" rx="98" ry="22" fill="#1A1A1A" fill-opacity="0.08"/>
+
+  <!-- Character legs -->
+  <path d="M232 400c-4 32-2 58 4 76h28c-2-20-4-46 2-74z" fill="#1A1A1A"/>
+  <path d="M312 400c4 32 2 58-4 76h-28c2-20 4-46-2-74z" fill="#1A1A1A"/>
+
+  <!-- Character body -->
+  <rect x="222" y="290" width="116" height="126" rx="44" fill="#F5F3EE"/>
+  <rect x="222" y="290" width="116" height="72" rx="36" fill="#EF2D47"/>
+
+  <!-- Left arm resting on hip -->
+  <path d="M232 320c-16 8-24 26-20 48 3 16 14 24 26 22" stroke="#8B5E3C" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- Right arm raised holding phone up -->
+  <path d="M320 318c22-6 40 4 46 26 5 18-2 34-16 40" stroke="#8B5E3C" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- Phone held up -->
+  <g transform="translate(332 210) rotate(6)">
+    <rect x="0" y="0" width="58" height="98" rx="13" fill="#1A1A1A"/>
+    <rect x="7" y="12" width="44" height="66" rx="5" fill="#F5F3EE"/>
+    <rect x="16" y="24" width="26" height="6" rx="3" fill="#EF2D47" fill-opacity="0.7"/>
+    <rect x="16" y="36" width="26" height="6" rx="3" fill="#1A1A1A" fill-opacity="0.35"/>
+    <circle cx="29" cy="58" r="12" fill="#D4A017" fill-opacity="0.25"/>
+    <path d="M23 58l4 4 8-9" stroke="#D4A017" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Head -->
+  <circle cx="280" cy="250" r="48" fill="#8B5E3C"/>
+  <path d="M232 242c0-32 22-58 48-58s48 26 48 58c-10-9-28-15-48-15s-38 6-48 15z" fill="#1A1A1A"/>
+  <circle cx="264" cy="252" r="4.5" fill="#1A1A1A"/>
+  <circle cx="298" cy="252" r="4.5" fill="#1A1A1A"/>
+  <path d="M264 270c8 7 22 7 30 0" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+  <!-- Notification bubble (bottom left, subscribed confirmation) -->
+  <g>
+    <rect x="86" y="420" width="168" height="58" rx="18" fill="white"/>
+    <circle cx="116" cy="449" r="15" fill="#2FAE5C" fill-opacity="0.15"/>
+    <path d="M109 449l5 5 11-12" stroke="#2FAE5C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <rect x="144" y="438" width="92" height="8" rx="4" fill="#1A1A1A" fill-opacity="0.7"/>
+    <rect x="144" y="453" width="64" height="7" rx="3.5" fill="#1A1A1A" fill-opacity="0.35"/>
+  </g>
+
+  <!-- Sparkle accents -->
+  <path d="M480 300l6 16 16 6-16 6-6 16-6-16-16-6 16-6z" fill="#D4A017" fill-opacity="0.65"/>
+  <path d="M96 130l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#EF2D47" fill-opacity="0.5"/>
+  <circle cx="470" cy="470" r="7" fill="#D4A017" fill-opacity="0.5"/>
+</svg>

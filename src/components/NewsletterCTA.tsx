@@ -12,22 +12,18 @@ export default function NewsletterCTA() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-
     setLoading(true);
     setError("");
-
     try {
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Failed to subscribe");
       }
-
       setSubscribed(true);
       setEmail("");
       setTimeout(() => setSubscribed(false), 3000);
@@ -39,36 +35,26 @@ export default function NewsletterCTA() {
   };
 
   return (
-    <section className="bg-gradient-to-br from-brand-night via-[#1a0a0a] to-brand-night py-20 sm:py-24 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-red/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-brand-gold/10 rounded-full blur-[100px]" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-          backgroundSize: "32px 32px"
-        }} />
+    <section className="bg-brand-night py-20 sm:py-28 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-brand-red/8 rounded-full blur-[120px]" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-red/20 border border-brand-red/30 rounded-full text-brand-red text-sm font-semibold mb-6">
-          <Mail className="w-4 h-4" />
-          Stay Updated
-        </div>
-
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold text-white mb-4 leading-tight">
-          Never Miss a New Service
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
+        <p className="text-brand-red text-xs font-bold uppercase tracking-[0.15em] mb-4">
+          Stay in the loop
+        </p>
+        <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-white mb-4 leading-tight">
+          Never miss a new service
         </h2>
-        <p className="text-base sm:text-lg text-gray-400 mb-10 max-w-xl mx-auto">
-          Get notified when we add new services and guides to help you navigate Sri Lanka.
+        <p className="text-gray-400 text-base sm:text-lg mb-8 max-w-md mx-auto">
+          Get notified when we add new services and guides to help you get things done.
         </p>
 
-        {error && (
-          <p className="text-sm text-red-400 mb-4 animate-fade-in">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto mb-4">
+          <div className="flex gap-2">
             <input
               suppressHydrationWarning
               type="email"
@@ -76,33 +62,20 @@ export default function NewsletterCTA() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="flex-1 px-5 py-4 rounded-xl sm:rounded-l-xl sm:rounded-r-none bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red border-0"
+              className="flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red"
             />
             <button
               type="submit"
               disabled={loading || subscribed}
-              className="px-6 py-4 bg-brand-red hover:bg-brand-red-dk disabled:bg-gray-600 text-white font-bold rounded-xl sm:rounded-r-xl sm:rounded-l-none transition-all hover:shadow-lg hover:shadow-brand-red/30 disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+              className="px-5 py-3 bg-brand-red hover:bg-brand-red-dk text-white font-bold text-sm rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 shrink-0"
             >
-              {subscribed ? (
-                <>
-                  <Check className="w-5 h-5" />
-                  Subscribed!
-                </>
-              ) : loading ? (
-                "Subscribing..."
-              ) : (
-                <>
-                  Subscribe
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
+              {subscribed ? <Check className="w-4 h-4" /> : loading ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <ArrowRight className="w-4 h-4" />}
+              {subscribed ? "Subscribed" : "Subscribe"}
             </button>
           </div>
         </form>
 
-        <p className="text-xs text-gray-500 mt-4">
-          We respect your privacy. Unsubscribe at any time.
-        </p>
+        <p className="text-xs text-gray-600">No spam. Unsubscribe anytime.</p>
       </div>
     </section>
   );
