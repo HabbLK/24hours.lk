@@ -5,146 +5,138 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import FeaturedServices from "@/components/FeaturedServices";
 import TaskGuides from "@/components/TaskGuides";
-import { Search as SearchIcon, Sparkles, AlertCircle } from "lucide-react";
+import IconRenderer from "@/components/IconRenderer";
+import { Search as SearchIcon, AlertCircle } from "lucide-react";
 
 export default function SearchClient() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
   const router = useRouter();
-  
+
   const [query, setQuery] = useState(q);
   const [results, setResults] = useState<{ services: any[]; guides: any[] }>({ services: [], guides: [] });
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     if (q) {
       setLoading(true);
       fetch(`/api/search?q=${encodeURIComponent(q)}`)
         .then(res => res.json())
-        .then(data => {
-          setResults(data);
-          setLoading(false);
-        })
+        .then(data => { setResults(data); setLoading(false); })
         .catch(() => setLoading(false));
     } else {
       setLoading(false);
     }
   }, [q]);
 
+  useEffect(() => {
+    if (q) return;
+    fetch("/api/categories")
+      .then(res => res.json())
+      .then(data => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
+  }, [q]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query)}`);
-    }
+    if (query.trim()) router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
   return (
     <>
-      <div className="mb-8 animate-fade-in-down">
-        <h1 className="text-3xl md:text-4xl font-heading font-bold text-brand-ink mb-2">
-          Search Services & Guides
+      <div className="mb-8">
+        <h1 className="text-3xl sm:text-4xl font-heading font-bold text-brand-ink mb-2">
+          Search services & guides
         </h1>
-        <p className="text-gray-600">Find exactly what you need, when you need it</p>
+        <p className="text-gray-500 text-sm">Find exactly what you need, when you need it</p>
       </div>
 
-      <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-12 animate-fade-in-up">
-        <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-white rounded-2xl p-2 shadow-lg border-2 border-gray-200 focus-within:border-brand-red/50 transition-all hover:shadow-xl">
-          <div className="pl-4 sm:pl-6 py-3 sm:py-0 flex items-center">
-            <SearchIcon className="w-6 h-6 text-gray-400" />
+      <form onSubmit={handleSearch} className="max-w-3xl mb-10">
+        <div className="flex bg-white rounded-xl border border-gray-200 overflow-hidden shadow-md shadow-black/5">
+          <div className="pl-4 flex items-center">
+            <SearchIcon className="w-5 h-5 text-gray-400" />
           </div>
-          <input 
-            type="text" 
-            placeholder="E.g. Renew driving licence, book doctor appointment..." 
-            className="flex-1 bg-transparent border-none text-gray-900 px-4 py-3 focus:outline-none text-base sm:text-lg placeholder:text-gray-400"
+          <input
+            type="text"
+            placeholder="e.g. renew driving licence, book doctor..."
+            className="flex-1 px-3 py-4 text-sm text-brand-ink placeholder:text-gray-400 focus:outline-none"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button 
-            type="submit" 
-            className="bg-brand-red hover:bg-brand-red-dk text-white px-6 sm:px-8 py-3 rounded-xl sm:rounded-full font-bold transition-all hover:scale-105 active:scale-95 m-1 flex items-center justify-center gap-2"
+          <button
+            type="submit"
+            className="px-6 py-4 bg-brand-red hover:bg-brand-red-dk text-white font-bold text-sm transition-colors shrink-0"
           >
-            <SearchIcon className="w-5 h-5" />
             Search
           </button>
         </div>
       </form>
 
       {loading ? (
-        <div className="text-center py-32 animate-fade-in">
-          <div className="inline-block w-12 h-12 border-4 border-brand-red border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-gray-600 font-medium">Searching for "{q}"...</p>
+        <div className="text-center py-24">
+          <div className="w-8 h-8 border-3 border-brand-red border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-gray-500">Searching for &ldquo;{q}&rdquo;...</p>
         </div>
       ) : (
         <>
           {results.guides.length === 0 && results.services.length === 0 && q ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-sm animate-fade-in-up">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-                <AlertCircle className="w-8 h-8 text-gray-400" />
+            <div className="text-center py-20">
+              <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-7 h-7 text-gray-400" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-700 mb-2">No results found for "{q}"</h2>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Try adjusting your search terms or explore our categories to find what you need.
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Link 
-                  href="/" 
-                  className="px-6 py-3 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-lg transition-all hover:scale-105"
-                >
+              <h2 className="text-xl font-bold text-brand-ink mb-1">No results for &ldquo;{q}&rdquo;</h2>
+              <p className="text-sm text-gray-500 mb-6">Try different keywords or explore our categories.</p>
+              <div className="flex gap-3 justify-center">
+                <Link href="/" className="px-5 py-2.5 bg-brand-red hover:bg-brand-red-dk text-white font-bold text-sm rounded-lg transition-colors">
                   Go Home
                 </Link>
-                <Link 
-                  href="/search" 
-                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition-all hover:scale-105"
-                >
+                <Link href="/search" className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm rounded-lg transition-colors">
                   Clear Search
                 </Link>
               </div>
             </div>
           ) : q ? (
-            <div className="space-y-16">
-              {/* Search results header */}
-              <div className="flex items-center gap-2 text-gray-600 animate-fade-in">
-                <Sparkles className="w-5 h-5 text-brand-red" />
-                <p>Found {results.guides.length + results.services.length} result(s) for <span className="font-bold text-brand-ink">"{q}"</span></p>
-              </div>
+            <div className="space-y-14">
+              <p className="text-sm text-gray-500">
+                Found {results.guides.length + results.services.length} result{results.guides.length + results.services.length !== 1 ? "s" : ""} for <span className="font-bold text-brand-ink">&ldquo;{q}&rdquo;</span>
+              </p>
 
               {results.guides.length > 0 && (
-                <div className="animate-fade-in-up">
-                  <div className="mb-6">
-                    <span className="inline-block bg-brand-red/10 text-brand-red text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
-                      Step-by-Step Guides
-                    </span>
-                    <h2 className="text-2xl md:text-3xl font-heading font-bold text-brand-ink">
-                      Here's how to complete this task
-                    </h2>
-                  </div>
+                <div>
+                  <h2 className="text-xl font-heading font-bold text-brand-ink mb-4">Guides</h2>
                   <TaskGuides guides={results.guides} />
                 </div>
               )}
 
               {results.services.length > 0 && (
-                <div className="animate-fade-in-up delay-200">
-                  <div className="mb-6">
-                    <span className="inline-block bg-brand-gold/10 text-brand-gold text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
-                      Direct Services
-                    </span>
-                    <h2 className="text-2xl md:text-3xl font-heading font-bold text-brand-ink">
-                      Relevant services you can access
-                    </h2>
-                  </div>
+                <div>
+                  <h2 className="text-xl font-heading font-bold text-brand-ink mb-4">Services</h2>
                   <FeaturedServices services={results.services} />
                 </div>
               )}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-2xl border border-gray-200 shadow-sm">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-red/10 rounded-full mb-4">
-                <SearchIcon className="w-8 h-8 text-brand-red" />
+            <div>
+              <h2 className="text-xl font-heading font-bold text-brand-ink mb-1">Browse all categories</h2>
+              <p className="text-sm text-gray-500 mb-6">Or enter a keyword above to find something specific</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                {categories.map((category) => (
+                  <Link
+                    key={category._id}
+                    href={`/category/${category.slug}`}
+                    className="group flex flex-col items-center text-center gap-3 p-5 bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-md transition-all"
+                  >
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"
+                      style={{ backgroundColor: `${category.color || "#E4322B"}1A` }}
+                    >
+                      <IconRenderer iconName={category.icon} className="w-6 h-6" style={{ color: category.color || "#E4322B" }} />
+                    </div>
+                    <span className="text-sm font-bold text-brand-ink leading-tight">{category.name}</span>
+                  </Link>
+                ))}
               </div>
-              <h2 className="text-2xl font-bold text-gray-700 mb-2">Start your search</h2>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Enter a keyword or service name to find what you're looking for
-              </p>
             </div>
           )}
         </>

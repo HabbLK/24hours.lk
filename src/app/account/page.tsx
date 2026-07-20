@@ -20,14 +20,20 @@ export default function AccountPage() {
   useEffect(() => {
     if (status === "authenticated") {
       fetch("/api/user/profile")
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
         .then((data) => {
           setProfile(data);
           setName(data.name || "");
           setPhone(data.phone || "");
           setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch(() => {
+          setError("Failed to load profile. Please try again.");
+          setLoading(false);
+        });
     }
   }, [status]);
 

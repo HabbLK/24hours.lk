@@ -10,6 +10,8 @@ export interface IUser extends Document {
   providerId?: string;
   emailVerified?: Date;
   phoneVerified?: Date;
+  emailOtp?: string;
+  emailOtpExpires?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
   role: "user" | "admin";
@@ -34,6 +36,8 @@ const UserSchema: Schema = new Schema(
     providerId: { type: String },
     emailVerified: { type: Date },
     phoneVerified: { type: Date },
+    emailOtp: { type: String },
+    emailOtpExpires: { type: Date },
     passwordResetToken: { type: String },
     passwordResetExpires: { type: Date },
     role: { type: String, enum: ["user", "admin"], default: "user" },

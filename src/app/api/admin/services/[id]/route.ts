@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { getAdminAuthOptions } from "@/lib/auth";
+import { adminAuthOptions } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import Service from "@/models/Service";
 import AuditLog from "@/models/AuditLog";
@@ -9,7 +9,7 @@ const GOVERNMENT_CATEGORIES = ["government"];
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await getServerSession(getAdminAuthOptions());
+  const session = await getServerSession(adminAuthOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
@@ -58,7 +58,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await getServerSession(getAdminAuthOptions());
+  const session = await getServerSession(adminAuthOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {

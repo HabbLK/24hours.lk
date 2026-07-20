@@ -63,7 +63,7 @@ export default function AuthModal({
         }
       } else {
         onClose();
-        window.location.href = callbackUrl;
+        window.location.replace(callbackUrl);
       }
     } catch {
       setError("Something went wrong. Please try again.");

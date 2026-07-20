@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,19 +20,29 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("admin-credentials", {
-        email,
-        password,
-        redirect: false,
+      const csrfRes = await fetch("/api/admin/auth/csrf");
+      const { csrfToken } = await csrfRes.json();
+
+      const res = await fetch("/api/admin/auth/callback/credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          email,
+          password,
+          csrfToken,
+          callbackUrl,
+          json: "true",
+        }),
+        redirect: "manual",
       });
 
-      if (result?.error) {
+      if (res.ok || res.type === "opaqueredirect") {
+        window.location.replace(callbackUrl);
+      } else {
         setError("Invalid email or password");
         setLoading(false);
-      } else {
-        window.location.href = callbackUrl;
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
       setLoading(false);
     }
@@ -41,14 +50,12 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-night via-brand-ink to-brand-night p-4">
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-1/4 w-96 h-96 bg-brand-red/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-brand-gold/20 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="font-heading font-extrabold text-4xl text-white mb-2">
             <span className="text-brand-red">24</span>hours.lk
@@ -56,7 +63,6 @@ export default function AdminLoginPage() {
           <p className="text-gray-400">Admin Portal</p>
         </div>
 
-        {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 animate-fade-in-up">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-red/10 rounded-full mb-4">
@@ -68,7 +74,6 @@ export default function AdminLoginPage() {
             <p className="text-gray-600">Sign in to access the admin dashboard</p>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 animate-fade-in">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -79,7 +84,6 @@ export default function AdminLoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
@@ -100,7 +104,6 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
@@ -123,16 +126,11 @@ export default function AdminLoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -149,7 +147,6 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* Additional Info */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-center text-sm text-gray-500">
               Secure admin access only
@@ -157,10 +154,9 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        {/* Back to Site */}
         <div className="text-center mt-6">
-          <a 
-            href="/" 
+          <a
+            href="/"
             className="text-sm text-gray-400 hover:text-white transition-colors"
           >
             ← Back to 24hours.lk

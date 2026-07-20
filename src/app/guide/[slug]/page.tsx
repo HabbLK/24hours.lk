@@ -5,7 +5,7 @@ import TaskGuide from "@/models/TaskGuide";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-import { ExternalLink, ArrowLeft, CheckCircle2, Clock } from "lucide-react";
+import { ExternalLink, ArrowLeft } from "lucide-react";
 
 export default async function GuidePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -20,90 +20,53 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   return (
     <div className="min-h-screen flex flex-col bg-brand-mist">
       <Navbar />
-      <main className="flex-grow pt-24 pb-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Back Button */}
-          <Link 
-            href="/" 
-            className="inline-flex items-center text-sm font-medium text-brand-red hover:text-brand-red-dk mb-8 transition-colors group animate-fade-in"
+      <main className="flex-grow pt-20 pb-12">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/guides"
+            className="inline-flex items-center text-sm font-medium text-brand-red hover:text-brand-red-dk mb-6 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" /> 
-            Back to Home
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            All guides
           </Link>
-          
-          {/* Guide Header */}
-          <div className="mb-10 animate-fade-in-up">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="inline-block bg-brand-red/10 text-brand-red text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                Step-by-Step Guide
-              </span>
-              {guide.steps?.length > 0 && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="w-4 h-4" />
-                  {guide.steps.length} Steps
-                </div>
-              )}
-            </div>
-            <h1 className="text-4xl md:text-5xl font-heading font-bold text-brand-ink mb-4">{guide.title}</h1>
+
+          <div className="mb-8">
+            <p className="text-xs font-bold text-brand-red uppercase tracking-wider mb-2">Guide</p>
+            <h1 className="text-3xl sm:text-4xl font-heading font-bold text-brand-ink mb-3">{guide.title}</h1>
             {guide.keywords && guide.keywords.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {guide.keywords.map((keyword, idx) => (
-                  <span key={idx} className="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                  <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">
                     {keyword}
                   </span>
                 ))}
               </div>
             )}
           </div>
-          
-          {/* Progress Indicator */}
-          <div className="mb-10 bg-white rounded-2xl p-6 shadow-sm border border-gray-200 animate-fade-in-up delay-200">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-gray-600">Your Progress</span>
-              <span className="text-sm text-brand-red font-bold">0 / {guide.steps?.length || 0} Complete</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-              <div className="bg-gradient-to-r from-brand-red to-brand-gold h-full rounded-full" style={{ width: '0%' }}></div>
-            </div>
-          </div>
-          
-          {/* Steps */}
-          <div className="space-y-6">
+
+          <div className="space-y-5">
             {guide.steps?.sort((a: any, b: any) => a.stepNumber - b.stepNumber).map((step: any, index: number) => (
-              <div 
-                key={index} 
-                className="relative flex gap-6 bg-white p-6 md:p-8 rounded-2xl shadow-sm border-2 border-gray-100 hover:border-brand-red/30 transition-all hover:shadow-lg group animate-fade-in-up"
-                style={{ animationDelay: `${(index + 3) * 100}ms` }}
+              <div
+                key={index}
+                className="flex gap-5 bg-white p-6 rounded-xl border border-gray-200"
               >
-                {/* Step Number */}
-                <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-brand-night to-brand-ink text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">
+                <div className="flex-shrink-0 w-10 h-10 bg-brand-ink text-white rounded-lg flex items-center justify-center font-bold text-sm">
                   {step.stepNumber}
                 </div>
-                
-                {/* Connecting Line (for all but last step) */}
-                {index < (guide.steps?.length || 0) - 1 && (
-                  <div className="absolute left-[27px] top-[70px] w-0.5 h-[calc(100%+24px)] bg-gradient-to-b from-gray-300 to-transparent -z-10" />
-                )}
-                
-                <div className="flex-grow">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-xl md:text-2xl font-bold text-brand-ink pr-4 flex items-start gap-2">
-                      {step.title}
-                    </h3>
-                    <CheckCircle2 className="w-6 h-6 text-gray-300 group-hover:text-brand-red transition-colors flex-shrink-0" />
-                  </div>
-                  
-                  <p className="text-gray-600 mb-6 leading-relaxed">{step.description}</p>
-                  
+
+                <div className="flex-grow min-w-0">
+                  <h3 className="text-lg font-bold text-brand-ink mb-1.5">{step.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">{step.description}</p>
+
                   {step.externalUrl && (
-                    <a 
-                      href={step.externalUrl} 
-                      target="_blank" 
+                    <a
+                      href={step.externalUrl}
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center px-6 py-3 bg-brand-red text-white font-bold rounded-xl hover:bg-brand-red-dk transition-all hover:scale-105 active:scale-95 shadow-lg group"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-red text-white font-bold text-sm rounded-lg hover:bg-brand-red-dk transition-colors"
                     >
-                      {step.linkLabel || "Go to Service"} 
-                      <ExternalLink className="w-5 h-5 ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      {step.linkLabel || "Go to Service"}
+                      <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
                 </div>
@@ -111,15 +74,13 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             ))}
           </div>
 
-          {/* Completion CTA */}
-          <div className="mt-12 bg-gradient-to-br from-brand-night to-brand-ink text-white p-8 rounded-2xl shadow-xl text-center animate-fade-in-up">
-            <h3 className="text-2xl font-heading font-bold mb-3">Need Help?</h3>
-            <p className="text-gray-300 mb-6">If you have questions about this guide, feel free to reach out to our support team.</p>
-            <Link 
-              href="/"
-              className="inline-block px-8 py-3 bg-brand-red hover:bg-brand-red-dk text-white font-bold rounded-xl transition-all hover:scale-105"
+          <div className="mt-10 pt-8 border-t border-gray-200 text-center">
+            <p className="text-sm text-gray-500 mb-4">Need help with something else?</p>
+            <Link
+              href="/guides"
+              className="inline-block px-6 py-2.5 bg-brand-red hover:bg-brand-red-dk text-white font-bold text-sm rounded-lg transition-colors"
             >
-              Explore More Guides
+              Browse All Guides
             </Link>
           </div>
         </div>

@@ -4,22 +4,25 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, CheckCircle2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const justVerified = searchParams.get("verified") === "1";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [unverified, setUnverified] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setUnverified(false);
     setLoading(true);
 
     try {
@@ -30,10 +33,11 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        setError(result.error);
+        setUnverified(result.error.toLowerCase().includes("verify"));
       } else {
-        // Full reload to ensure session JWT is picked up by SessionProvider
-        window.location.href = callbackUrl;
+        // Full reload to ensure session JWT cookie is set before navigation
+        window.location.replace(callbackUrl);
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -48,9 +52,23 @@ export default function LoginPage() {
 
   return (
     <AuthLayout heading="Welcome back" description="Sign in to your account to continue">
+      {justVerified && !error && (
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 flex items-center gap-2 animate-fade-in">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          Email verified! You can now sign in.
+        </div>
+      )}
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 animate-fade-in">
           {error}
+          {unverified && (
+            <>
+              {" "}
+              <Link href={`/verify-email?email=${encodeURIComponent(email)}`} className="font-bold underline">
+                Verify now
+              </Link>
+            </>
+          )}
         </div>
       )}
 
@@ -62,6 +80,7 @@ export default function LoginPage() {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="email"
               type="email"
               value={email}
@@ -80,6 +99,7 @@ export default function LoginPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}

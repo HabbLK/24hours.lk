@@ -25,12 +25,18 @@ export default function PointsWalletPage() {
   useEffect(() => {
     if (status === "authenticated") {
       fetch("/api/user/points")
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
         .then((d) => {
           setData(d);
           setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch(() => {
+          setError("Failed to load points data.");
+          setLoading(false);
+        });
     }
   }, [status]);
 

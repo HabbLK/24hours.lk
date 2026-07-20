@@ -1,34 +1,44 @@
-export default function PartnerChips() {
-  const partners = [
-    "Department of Motor Traffic", "eChannelling", "SLTB", "PickMe", "Uber", "Kapruka", "Booking.com", "Osu Sala", "Sri Lankan Airlines", "Dialog Axiata"
-  ];
+const partners = [
+  { name: "Department of Motor Traffic" },
+  { name: "eChannelling", logo: "/images/brand/echannelling.png" },
+  { name: "SLTB" },
+  { name: "PickMe", logo: "/images/brand/pickme.jpeg" },
+  { name: "Uber Eats", logo: "/images/brand/uber-eats.png" },
+  { name: "Kapruka", logo: "/images/brand/kapruka.png" },
+  { name: "Booking.com", logo: "/images/brand/booking-com.jpeg" },
+  { name: "Osu Sala" },
+  { name: "SriLankan Airlines", logo: "/images/brand/srilankan-airlines.png" },
+  { name: "Dialog Axiata" },
+];
 
-  return (
-    <section className="bg-gradient-to-b from-white to-gray-50 py-16 border-y border-gray-100 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-red/5 border border-brand-red/10 rounded-full text-brand-red text-xs font-bold uppercase tracking-wider mb-4">
-          Our Partners
-        </div>
-        <h3 className="text-2xl font-heading font-bold text-brand-ink mb-2">Trusted Partners</h3>
-        <p className="text-sm text-gray-500">
-          Find services from top providers across Sri Lanka
-        </p>
+function PartnerItem({ partner }: { partner: (typeof partners)[number] }) {
+  if (partner.logo) {
+    return (
+      <div className="flex items-center justify-center h-8 mx-5 shrink-0 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+        <img src={partner.logo} alt={partner.name} className="h-full w-auto max-w-[100px] object-contain" />
       </div>
+    );
+  }
+  return (
+    <span className="text-base font-heading font-bold text-gray-300 hover:text-brand-red transition-colors mx-3 cursor-default shrink-0">
+      {partner.name}
+    </span>
+  );
+}
+
+export default function PartnerChips() {
+  return (
+    <section className="bg-white py-14 border-y border-gray-100 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 text-center">
+        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Trusted by leading providers</p>
+      </div>
+
       <div className="relative flex overflow-x-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
-        
-        <div className="py-4 animate-marquee whitespace-nowrap flex items-center gap-10">
-          {partners.map((partner, index) => (
-            <span key={index} className="text-lg font-heading font-bold text-gray-300 hover:text-brand-red transition-colors duration-300 mx-3 cursor-default">
-              {partner}
-            </span>
-          ))}
-          {partners.map((partner, index) => (
-            <span key={`dup-${index}`} className="text-lg font-heading font-bold text-gray-300 hover:text-brand-red transition-colors duration-300 mx-3 cursor-default">
-              {partner}
-            </span>
-          ))}
+        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+        <div className="py-3 animate-marquee whitespace-nowrap flex items-center">
+          {partners.map((partner, i) => <PartnerItem key={i} partner={partner} />)}
+          {partners.map((partner, i) => <PartnerItem key={`dup-${i}`} partner={partner} />)}
         </div>
       </div>
     </section>

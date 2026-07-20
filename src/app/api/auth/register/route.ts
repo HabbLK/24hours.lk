@@ -3,6 +3,14 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcrypt";
 import { grantSignupBonusIfNeeded } from "@/lib/points";
+import crypto from "crypto";
+import { sendOtpEmail } from "@/lib/mail";
+
+const OTP_EXPIRY_MINUTES = 10;
+
+function generateOtp() {
+  return crypto.randomInt(100000, 1000000).toString();
+}
 
 export async function POST(request: Request) {
   try {
@@ -33,25 +41,30 @@ export async function POST(request: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    const otp = generateOtp();
+    const otpExpires = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
-    const user = await User.create({
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
+    const normalizedEmail = email.toLowerCase().trim();
+    const trimmedName = name.trim();
+
+    await User.create({
+      name: trimmedName,
+      email: normalizedEmail,
       password: hashedPassword,
       provider: "email",
       role: "user",
+      emailOtp: otp,
+      emailOtpExpires: otpExpires,
     });
 
     await grantSignupBonusIfNeeded(user._id.toString());
+    await sendOtpEmail(normalizedEmail, trimmedName, otp);
 
     return NextResponse.json(
       {
-        message: "Account created successfully",
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-        },
+        message: "Account created. Check your email for a verification code.",
+        requiresVerification: true,
+        email: normalizedEmail,
       },
       { status: 201 }
     );

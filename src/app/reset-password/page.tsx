@@ -107,6 +107,7 @@ export default function ResetPasswordPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
@@ -132,6 +133,7 @@ export default function ResetPasswordPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
+              suppressHydrationWarning
               id="confirmPassword"
               type={showPassword ? "text" : "password"}
               value={confirmPassword}

@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Syne } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import Providers from "@/components/Providers";
 import FloatingChatBot from "@/components/FloatingChatBot";
-import InstallPrompt from "@/components/InstallPrompt";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const syne = Syne({ subsets: ["latin"], variable: "--font-syne", weight: ["400", "500", "600", "700", "800"] });
+const poppins = Poppins({ subsets: ["latin"], variable: "--font-poppins", weight: ["500", "600", "700", "800"] });
 
 export const metadata: Metadata = {
   title: "24hours.lk - Sri Lanka's Unified Service Hub | Find Any Service Anytime",
@@ -52,23 +53,24 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F5F3EE" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F0F0F" },
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#1A1A1A" },
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
-      <body suppressHydrationWarning className={`${inter.variable} ${syne.variable} font-sans antialiased text-ink bg-mist`}>
-        <Providers>
+      <body suppressHydrationWarning className={`${inter.variable} ${poppins.variable} font-sans antialiased text-ink bg-mist`}>
+        <Providers session={session}>
           {children}
           <FloatingChatBot />
-          <InstallPrompt />
           <ServiceWorkerRegister />
         </Providers>
       </body>

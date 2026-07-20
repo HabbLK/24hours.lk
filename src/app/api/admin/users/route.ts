@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { getAdminAuthOptions } from "@/lib/auth";
+import { adminAuthOptions } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 
 export async function GET() {
   try {
-    const session = await getServerSession(getAdminAuthOptions());
+    const session = await getServerSession(adminAuthOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
