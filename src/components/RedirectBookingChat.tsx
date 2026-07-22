@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Send, ArrowRight, Loader2, X, RotateCcw } from "lucide-react";
+import { Bot, Send, ArrowRight, Loader2 } from "lucide-react";
 import { FLOWS, detectIntent, extractEntities, validateSlotInput, SlotDef } from "@/lib/flowConfigs";
 import { buildDeepLink } from "@/lib/deepLinks";
 import { matchTown } from "@/lib/matchTown";
