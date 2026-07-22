@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bot } from "lucide-react";
+import { Bot, Send, ArrowRight, Loader2 } from "lucide-react";
 import { FLOWS, detectIntent, extractEntities, validateSlotInput, SlotDef } from "@/lib/flowConfigs";
-import { Send, ArrowRight, Loader2 } from "lucide-react";
 import { buildDeepLink } from "@/lib/deepLinks";
 import { matchTown } from "@/lib/matchTown";
 import { matchFromList } from "@/lib/matchList";
@@ -202,8 +201,6 @@ export default function RedirectBookingChat() {
     } else {
       handleSlotAnswer(value);
     }
-    if (!flowKey) handleInitialMessage(value);
-    else handleSlotAnswer(value);
   }
 
   const slotDef = currentSlotDef();
