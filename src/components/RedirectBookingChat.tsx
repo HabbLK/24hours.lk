@@ -1,24 +1,46 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { Send, ArrowRight, Loader2, X, RotateCcw } from "lucide-react";
 import { Bot, Send, ArrowRight, Loader2 } from "lucide-react";
 import { FLOWS, detectIntent, extractEntities, validateSlotInput, SlotDef } from "@/lib/flowConfigs";
 import { buildDeepLink } from "@/lib/deepLinks";
 import { matchTown } from "@/lib/matchTown";
 import { matchFromList } from "@/lib/matchList";
 import { SPECIALIZATIONS, HOSPITALS } from "@/lib/doctorData";
+import ServiceEmbedModal, { ServiceEmbedTarget } from "@/components/ServiceEmbedModal";
+import { canEmbedProviderUrl } from "@/lib/canEmbedProvider";
 
 interface Msg { id: string; role: "bot" | "user"; text: string; }
 interface Provider { _id: string; slug: string; name: string; externalUrl: string; icon?: string; }
+
+export interface RedirectBookingChatProps {
+  variant?: "full" | "compact";
+  onClose?: () => void;
+}
 
 let idc = 1;
 const nid = () => `m${idc++}`;
 
 const TOWN_SLOT_KEYS = new Set(["origin", "destination"]);
 
-export default function RedirectBookingChat() {
+/** Core booking services — same set everywhere (assistant + floating chat). */
+const CORE_SERVICE_KEYS = ["flight", "bus", "hotel", "taxi", "doctor"] as const;
+
+const CORE_QUICK_ACTIONS: Array<{ key: (typeof CORE_SERVICE_KEYS)[number]; label: string; icon: string }> = [
+  { key: "flight", label: "Flight", icon: "✈️" },
+  { key: "bus", label: "Bus", icon: "🚌" },
+  { key: "hotel", label: "Hotel", icon: "🏨" },
+  { key: "taxi", label: "Taxi", icon: "🚕" },
+  { key: "doctor", label: "Doctor", icon: "🩺" },
+];
+
+const WELCOME =
+  'What would you like to book? You can describe it naturally — e.g. "bus tickets to Kandy on Friday" or "flight to Chennai"';
+
+export default function RedirectBookingChat({ variant = "full", onClose }: RedirectBookingChatProps) {
   const [messages, setMessages] = useState<Msg[]>([
-    { id: "m0", role: "bot", text: "What would you like to book? You can describe it naturally — e.g. \"bus tickets to Kandy on Friday\" or \"flight to Chennai\"" },
+    { id: "m0", role: "bot", text: WELCOME },
   ]);
   const [flowKey, setFlowKey] = useState<string | null>(null);
   const [slotIndex, setSlotIndex] = useState(0);
@@ -28,6 +50,7 @@ export default function RedirectBookingChat() {
   // Populated when detectIntent can't tell which flow the user meant
   // (e.g. "appointments" -> DMT vs Doctor). Cleared once they pick one.
   const [ambiguousOptions, setAmbiguousOptions] = useState<string[] | null>(null);
+  const [embedTarget, setEmbedTarget] = useState<ServiceEmbedTarget | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -75,11 +98,24 @@ export default function RedirectBookingChat() {
     return { value: rawValue, corrected: false };
   }
 
+  function resetChat() {
+    setMessages([{ id: nid(), role: "bot", text: WELCOME }]);
+    setFlowKey(null);
+    setSlotIndex(0);
+    setSlots({});
+    setProviders(null);
+    setLoading(false);
+    setAmbiguousOptions(null);
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
   // Shared by both the direct-match path and the post-disambiguation path.
   // `originalText` is only present on a direct match, so entity extraction
   // (e.g. "to Chennai") only runs then — after picking from a disambiguation
   // button there's no free text to extract from.
   function startFlow(key: string, originalText?: string) {
+    setProviders(null);
+    setAmbiguousOptions(null);
     setFlowKey(key);
     const flow = FLOWS[key];
     const entities = originalText ? extractEntities(originalText) : {};
@@ -98,11 +134,18 @@ export default function RedirectBookingChat() {
 
     const firstUnfilled = nextSlotIndex(flow.slots, filled, 0);
     if (firstUnfilled === -1) {
+      setSlotIndex(0);
       fetchProviders(key, filled);
     } else {
       setSlotIndex(firstUnfilled);
       say(flow.slots[firstUnfilled].question);
     }
+  }
+
+  function handleQuickStart(key: string) {
+    if (loading) return;
+    userSay(FLOWS[key].label);
+    startFlow(key);
   }
 
   function handleInitialMessage(text: string) {
@@ -161,16 +204,21 @@ export default function RedirectBookingChat() {
     setLoading(true);
     say("Finding providers for you...");
     const tags = FLOWS[flow].matchTags.join(",");
-    const res = await fetch(`/api/chat/providers?tags=${encodeURIComponent(tags)}`);
-    const data = await res.json();
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/chat/providers?tags=${encodeURIComponent(tags)}`);
+      const data = await res.json();
+      setLoading(false);
 
-    if (!data.services?.length) {
-      say("No providers listed for that yet. Try browsing categories instead.");
-      return;
+      if (!data.services?.length) {
+        say("No providers listed for that yet. Try browsing categories instead.");
+        return;
+      }
+      setProviders(data.services);
+      say(`Here ${data.services.length === 1 ? "is" : "are"} ${data.services.length} option${data.services.length > 1 ? "s" : ""}:`);
+    } catch {
+      setLoading(false);
+      say("Something went wrong looking up providers. Please try again.");
     }
-    setProviders(data.services);
-    say(`Here ${data.services.length === 1 ? "is" : "are"} ${data.services.length} option${data.services.length > 1 ? "s" : ""}:`);
   }
 
   async function handlePickProvider(provider: Provider) {
@@ -178,7 +226,6 @@ export default function RedirectBookingChat() {
     const link = buildDeepLink(provider.slug, provider.externalUrl, slots, (reason) => { fallbackReason = reason; });
 
     userSay(provider.name);
-    say(`Opening ${provider.name} with your details. Complete the booking on their site.`);
 
     fetch("/api/booking-intents", {
       method: "POST",
@@ -186,7 +233,15 @@ export default function RedirectBookingChat() {
       body: JSON.stringify({ flowKey, slots, serviceSlug: provider.slug, serviceName: provider.name, redirectUrl: link, deepLinkFallbackReason: fallbackReason }),
     }).catch(() => {});
 
-    window.open(link, "_blank", "noopener,noreferrer");
+    // If the partner blocks iframes, open a new tab instead of a blank embed.
+    if (!canEmbedProviderUrl(link)) {
+      say(`Opening ${provider.name} in a new tab — they don’t allow booking inside our page.`);
+      window.open(link, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    say(`Opening ${provider.name} on this page. Complete the booking there — you can close it anytime.`);
+    setEmbedTarget({ url: link, name: provider.name, slug: provider.slug });
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -205,9 +260,20 @@ export default function RedirectBookingChat() {
 
   const slotDef = currentSlotDef();
   const showInput = !providers && !loading && !ambiguousOptions;
+  const showQuickActions = !flowKey && !providers && !loading && !ambiguousOptions;
+  const isCompact = variant === "compact";
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 flex flex-col overflow-hidden" style={{ height: "min(560px, calc(100vh - 300px))" }}>
+    <>
+    <ServiceEmbedModal target={embedTarget} onClose={() => setEmbedTarget(null)} />
+    <div
+      className={`bg-white flex flex-col overflow-hidden ${
+        isCompact
+          ? "h-full rounded-xl"
+          : "max-w-2xl mx-auto rounded-xl border border-gray-200 shadow-lg shadow-black/5"
+      }`}
+      style={isCompact ? undefined : { height: "min(560px, calc(100vh - 300px))" }}
+    >
       {/* Header */}
       <div className="bg-brand-night px-4 py-3 flex items-center gap-2.5 shrink-0">
         <div className="w-8 h-8 rounded-lg bg-brand-red flex items-center justify-center">
@@ -215,16 +281,38 @@ export default function RedirectBookingChat() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-heading font-bold text-white text-sm leading-tight">Booking Assistant</p>
-          <p className="text-[10px] text-gray-500 leading-tight mt-0.5">Flights · Buses · Hotels · Doctors</p>
+          <p className="text-[10px] text-gray-500 leading-tight mt-0.5">Flights · Buses · Hotels · Taxis · Doctors</p>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-white/10 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span className="text-[10px] text-gray-400 font-medium">Online</span>
-        </div>
+        {(flowKey || providers) && (
+          <button
+            type="button"
+            onClick={resetChat}
+            className="w-7 h-7 rounded flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Start over"
+            title="Start over"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {isCompact && onClose ? (
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-7 h-7 rounded flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Close chat"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        ) : (
+          <div className="flex items-center gap-1.5 px-2 py-1 bg-white/10 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="text-[10px] text-gray-400 font-medium">Online</span>
+          </div>
+        )}
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 bg-gray-50">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 bg-gray-50 min-h-0">
         {messages.map((m) => (
           <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={
@@ -271,7 +359,7 @@ export default function RedirectBookingChat() {
                 <span className="text-lg shrink-0">{p.icon || "🔗"}</span>
                 <div className="flex-1 min-w-0">
                   <span className="font-semibold text-brand-ink text-[13px] block truncate">{p.name}</span>
-                  <span className="text-[11px] text-gray-400">Visit provider</span>
+                  <span className="text-[11px] text-gray-400">Open provider</span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-brand-red group-hover:translate-x-0.5 transition-all shrink-0" />
               </button>
@@ -296,6 +384,24 @@ export default function RedirectBookingChat() {
         <div ref={bottomRef} />
       </div>
 
+      {/* Core service quick actions — same for full + floating */}
+      {showQuickActions && (
+        <div className="px-3 py-2 flex gap-1.5 overflow-x-auto hide-scrollbar bg-white border-t border-gray-100 shrink-0">
+          {CORE_QUICK_ACTIONS.map((action) => (
+            <button
+              key={action.key}
+              type="button"
+              onClick={() => handleQuickStart(action.key)}
+              disabled={loading}
+              className="flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:border-brand-red/30 hover:text-brand-red transition-all font-medium shrink-0 disabled:opacity-40"
+            >
+              <span className="text-xs">{action.icon}</span>
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Input */}
       {showInput && slotDef?.widget !== "select" && (
         <div className="border-t border-gray-100 px-3 py-2.5 bg-white shrink-0">
@@ -319,5 +425,6 @@ export default function RedirectBookingChat() {
         </div>
       )}
     </div>
+    </>
   );
 }
