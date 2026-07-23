@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/api/settings)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/register -H \"Content-Type: application/json\" -d '{\"name\":\"Mobile Test\",\"email\":\"mobile.phase1.test@24hours.lk\",\"password\":\"TestPass123!\"}')",
+      "Bash(npx --yes create-expo-app@latest 24hours-mobile --template blank-typescript)",
+      "Bash(npm view *)",
+      "WebFetch(domain:expo.dev)",
+      "Bash(npm install *)",
+      "Bash(node -e \"console.log\\(require\\('fs'\\).readFileSync\\(require.resolve\\('babel-preset-expo/package.json'\\),'utf8'\\)\\)\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>console.log\\(JSON.parse\\(d\\).version\\)\\)\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(npx expo-doctor *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\thuve\\Desktop\\Work\\Habb\\24hours-mobile"
+    ]
+  }
+}

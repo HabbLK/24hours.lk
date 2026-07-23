@@ -1,19 +1,18 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { getRequestUser } from "@/lib/getRequestUser";
 import connectDB from "@/lib/db";
 import PointsLedger from "@/models/PointsLedger";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const requestUser = await getRequestUser(request);
+    if (!requestUser) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     await connectDB();
 
-    const userId = (session.user as any).id;
+    const userId = requestUser.id;
     const now = new Date();
 
     const transactions = await PointsLedger.find({
