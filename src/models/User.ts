@@ -16,6 +16,12 @@ export interface IUser extends Document {
   passwordResetExpires?: Date;
   role: "user" | "admin";
   active: boolean;
+  // Referral system (groundwork for the referral feature — not yet wired
+  // into signup flow). Points balance is NOT cached here — always
+  // computed live via getPointsBalance() in lib/points.ts.
+  referralCode: string;  // this user's own shareable code
+  referredBy?: string;   // another user's referralCode, captured at signup
+  referralBonusPaid: boolean; // prevents double-paying the referral bonus
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +48,9 @@ const UserSchema: Schema = new Schema(
     passwordResetExpires: { type: Date },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     active: { type: Boolean, default: true },
+    referralCode: { type: String, unique: true, sparse: true },
+    referredBy: { type: String, default: null },
+    referralBonusPaid: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -4,8 +4,18 @@ export interface IPointsLedger extends Document {
   userId: string;
   serviceId?: string;
   referralClickId?: string;
+  bookingIntentId?: string;
   pointsAmount: number;
-  reason: "booking_confirmed" | "referral" | "promo_conversion" | "expiry" | "admin_adjustment" | "signup_bonus";
+  reason:
+    | "booking_confirmed"
+    | "click_bonus"
+    | "new_category_bonus"
+    | "streak_bonus"
+    | "referral"
+    | "promo_conversion"
+    | "expiry"
+    | "admin_adjustment"
+    | "signup_bonus";
   timestamp: Date;
   expiryDate?: Date;
 }
@@ -15,10 +25,21 @@ const PointsLedgerSchema: Schema = new Schema(
     userId: { type: String, required: true },
     serviceId: { type: String, default: null },
     referralClickId: { type: String, default: null },
+    bookingIntentId: { type: String, default: null },
     pointsAmount: { type: Number, required: true },
     reason: {
       type: String,
-      enum: ["booking_confirmed", "referral", "promo_conversion", "expiry", "admin_adjustment", "signup_bonus"],
+      enum: [
+        "booking_confirmed",
+        "click_bonus",
+        "new_category_bonus",
+        "streak_bonus",
+        "referral",
+        "promo_conversion",
+        "expiry",
+        "admin_adjustment",
+        "signup_bonus",
+      ],
       required: true,
     },
     timestamp: { type: Date, default: Date.now },
